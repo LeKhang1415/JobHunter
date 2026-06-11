@@ -138,7 +138,6 @@ export default function UserUpsertPage() {
         try {
             await updateUser(userId, {
                 name: formData.name,
-                email: formData.email,
                 address: formData.address,
                 gender: formData.gender,
                 roleId: formData.roleId || undefined,
@@ -155,19 +154,6 @@ export default function UserUpsertPage() {
 
     const handleBack = () => {
         navigate("/admin/user-manager");
-    };
-
-    const getGenderLabel = (value: string) => {
-        switch (value) {
-            case "male":
-                return "Nam";
-            case "female":
-                return "Nữ";
-            case "other":
-                return "Khác";
-            default:
-                return value;
-        }
     };
 
     if (isFetching) {

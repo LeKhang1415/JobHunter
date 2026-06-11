@@ -8,6 +8,7 @@ import {
 import { User } from './entities/user.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
+import { Express } from 'express';
 import { UploadService } from '../upload/upload.service';
 import { HashingProvider } from '../auth/providers/hashing.provider';
 import { CreateUserDto } from './dtos/create-user.dto';
@@ -60,8 +61,8 @@ export class UsersService {
       gender: createUserDto.gender,
     });
 
-    if (createUserDto.role) {
-      await this.setRole(user, createUserDto.role);
+    if (createUserDto.roleId) {
+      await this.setRole(user, createUserDto.roleId);
     }
 
     if (createUserDto.company) {
@@ -98,8 +99,8 @@ export class UsersService {
       user.gender = updateUserDto.gender;
     }
 
-    if (updateUserDto.role) {
-      await this.setRole(user, updateUserDto.role);
+    if (updateUserDto.roleId) {
+      await this.setRole(user, updateUserDto.roleId);
     }
 
     if (updateUserDto.company) {
@@ -162,7 +163,7 @@ export class UsersService {
     };
   }
 
-  async updateSelfAvatar(email: string, file: Express.Multer.File) {
+  async updateSelfAvatar(email: string, file: File) {
     if (!file) return;
 
     const user = await this.findByEmail(email);

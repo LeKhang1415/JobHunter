@@ -24,7 +24,7 @@ export class CreateUserDto {
   gender: Gender;
 
   @IsOptional()
-  role?: string;
+  roleId?: string;
 
   @IsOptional()
   company?: string;

@@ -28,7 +28,7 @@ export class RoleController {
 
   @RequirePermissions('GET /role/all')
   @ResponseMessage('Lấy danh sách tất cả chức vụ thành công')
-  @Get('list/all')
+  @Get('/all')
   findAllWithoutPagination() {
     return this.roleService.findAllRoleWithoutPagination();
   }

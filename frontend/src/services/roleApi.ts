@@ -29,9 +29,7 @@ export const findAllRoles = ({
 };
 
 export const findAllRolesWithoutPagination = () => {
-    return axiosClient.get<ApiResponse<DefaultRoleResponseDto[]>>(
-        "/role/list/all",
-    );
+    return axiosClient.get<ApiResponse<DefaultRoleResponseDto[]>>("/role/all");
 };
 
 export const updateRoleById = (id: string, data: DefaultRoleRequestDto) => {
