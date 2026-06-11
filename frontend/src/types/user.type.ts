@@ -38,6 +38,23 @@ export interface RecruiterInfoResponseDto {
     owner: boolean;
 }
 
+export interface GetAllUsersParams {
+    page?: number;
+    limit?: number;
+    searchName?: string;
+    searchEmail?: string;
+    role?: string;
+    gender?: string;
+}
+
+export interface UpdateUserRequestDto {
+    name?: string;
+    email?: string;
+    address?: string;
+    gender?: string;
+    roleId?: string;
+}
+
 export interface MemberRecruiterRequestDto {
     email: string;
 }

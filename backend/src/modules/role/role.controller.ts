@@ -12,7 +12,6 @@ import { RoleService } from './role.service';
 import { CreateRoleDto } from './dtos/create-role.dto';
 import { ResponseMessage } from 'src/common/decorators/response-message.decorator';
 import { UpdateRoleDto } from './dtos/update-role.dto';
-import { PaginationQueryDto } from 'src/common/pagination/dtos/pagination-query.dto';
 import { RequirePermissions } from 'src/common/decorators/permission.decorator';
 import { RolePaginationQueryDto } from './dtos/role-pagination-query.dto';
 
@@ -25,6 +24,13 @@ export class RoleController {
   @Get(':id/permissions')
   getPermissionsByRole(@Param('id') id: string) {
     return this.roleService.getPermissionById(id);
+  }
+
+  @RequirePermissions('GET /role/all')
+  @ResponseMessage('Lấy danh sách tất cả chức vụ thành công')
+  @Get('list/all')
+  findAllWithoutPagination() {
+    return this.roleService.findAllRoleWithoutPagination();
   }
 
   @RequirePermissions('GET /role')

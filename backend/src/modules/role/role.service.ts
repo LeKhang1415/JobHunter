@@ -204,6 +204,15 @@ export class RoleService {
     return response;
   }
 
+  async findAllRoleWithoutPagination(): Promise<RoleResponseDto[]> {
+    const roles = await this.roleRepository.find({
+      where: { active: true },
+      order: { name: 'ASC' },
+    });
+
+    return roles.map((role) => this.mapToRoleResponseDto(role));
+  }
+
   private mapToRoleResponseDto(role: Role): RoleResponseDto {
     return {
       id: role.id,

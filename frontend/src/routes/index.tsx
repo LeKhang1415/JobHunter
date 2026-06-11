@@ -18,6 +18,8 @@ import SkillManagerRecruiterPage from "@/pages/recruiter/skill-page";
 import PermissionManagerPage from "@/pages/admin/access-control-page/permission-page";
 import RoleManagerPage from "@/pages/admin/access-control-page/role-page";
 import JobManageRecruiterPage from "@/pages/recruiter/job-page";
+import UserManagerPage from "@/pages/admin/user-manager-page";
+import UserUpsertPage from "@/pages/admin/user-manager-page/UserUpsertPage";
 
 export const router = createBrowserRouter([
     {
@@ -54,6 +56,8 @@ export const router = createBrowserRouter([
             { index: true, element: <Navigate to={"/admin/dashboard"} /> },
             { path: "dashboard", element: <DashboardPage /> },
             { path: "skill-manager", element: <SkillManagerAdminPage /> },
+            { path: "user-manager", element: <UserManagerPage /> },
+            { path: "user-manager/upsert", element: <UserUpsertPage /> },
             {
                 path: "access-control/permission",
                 element: <PermissionManagerPage />,

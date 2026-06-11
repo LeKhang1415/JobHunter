@@ -28,6 +28,12 @@ export const findAllRoles = ({
     >(`/role?${params.toString()}`);
 };
 
+export const findAllRolesWithoutPagination = () => {
+    return axiosClient.get<ApiResponse<DefaultRoleResponseDto[]>>(
+        "/role/list/all",
+    );
+};
+
 export const updateRoleById = (id: string, data: DefaultRoleRequestDto) => {
     return axiosClient.patch<ApiResponse<DefaultRoleResponseDto>>(
         `/role/${id}`,
