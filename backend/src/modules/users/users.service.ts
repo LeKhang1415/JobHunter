@@ -163,7 +163,7 @@ export class UsersService {
     };
   }
 
-  async updateSelfAvatar(email: string, file: File) {
+  async updateSelfAvatar(email: string, file: Express.Multer.File) {
     if (!file) return;
 
     const user = await this.findByEmail(email);
