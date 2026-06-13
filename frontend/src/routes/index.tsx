@@ -20,6 +20,7 @@ import RoleManagerPage from "@/pages/admin/access-control-page/role-page";
 import JobManageRecruiterPage from "@/pages/recruiter/job-page";
 import UserManagerPage from "@/pages/admin/user-manager-page";
 import UserUpsertPage from "@/pages/admin/user-manager-page/UserUpsertPage";
+import CompanyManagerPage from "@/pages/admin/company-page";
 
 export const router = createBrowserRouter([
     {
@@ -55,6 +56,7 @@ export const router = createBrowserRouter([
         children: [
             { index: true, element: <Navigate to={"/admin/dashboard"} /> },
             { path: "dashboard", element: <DashboardPage /> },
+            { path: "company", element: <CompanyManagerPage /> },
             { path: "skill-manager", element: <SkillManagerAdminPage /> },
             { path: "user-manager", element: <UserManagerPage /> },
             { path: "user-manager/upsert", element: <UserUpsertPage /> },

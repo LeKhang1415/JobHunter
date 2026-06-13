@@ -43,3 +43,34 @@ export const removeMemberFromCompany = (data: MemberRecruiterRequestDto) => {
         data: data,
     });
 };
+
+// Admin functions
+export const getAllCompanies = (params: {
+    page?: number;
+    limit?: number;
+    searchName?: string;
+}) => {
+    return axiosClient.get<
+        ApiResponse<{
+            data: DefaultCompanyResponseDto[];
+            meta: {
+                totalItems: number;
+                totalPages: number;
+                currentPage: number;
+                itemsPerPage: number;
+            };
+        }>
+    >("/company", {
+        params,
+    });
+};
+
+export const deleteCompany = (id: string) => {
+    return axiosClient.delete(`/company/${id}`);
+};
+
+export const getCompanyById = (id: string) => {
+    return axiosClient.get<ApiResponse<DefaultCompanyResponseDto>>(
+        `/company/${id}`,
+    );
+};
