@@ -162,18 +162,14 @@ export function UserTable({
                                                 perm={"PATCH /users/:id"}
                                             >
                                                 <Button
-                                                    variant="outline"
-                                                    size="sm"
+                                                    variant="ghost"
+                                                    size="icon"
                                                     onClick={() =>
                                                         navigate(
                                                             `/admin/user-manager/upsert?id=${user.id}`,
                                                         )
                                                     }
-                                                    className={`${
-                                                        theme === "blue"
-                                                            ? "hover:bg-blue-50 hover:text-blue-600"
-                                                            : "hover:bg-purple-50 hover:text-purple-600"
-                                                    }`}
+                                                    className="text-orange-500 hover:text-orange-600"
                                                 >
                                                     <Edit className="h-4 w-4" />
                                                 </Button>
@@ -182,14 +178,14 @@ export function UserTable({
                                                 perm={"DELETE /users/:id"}
                                             >
                                                 <Button
-                                                    variant="outline"
-                                                    size="sm"
+                                                    variant="ghost"
+                                                    size="icon"
                                                     onClick={() =>
                                                         handleDeleteClick(
                                                             user.id,
                                                         )
                                                     }
-                                                    className="hover:bg-red-50 hover:text-red-600"
+                                                    className="text-red-500 hover:text-red-600"
                                                 >
                                                     <Trash2 className="h-4 w-4" />
                                                 </Button>

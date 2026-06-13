@@ -71,16 +71,16 @@ export function CompanyTable({
 
     return (
         <>
-            <div className="rounded-lg border">
+            <div className="overflow-hidden rounded-lg border border-blue-600">
                 <Table>
-                    <TableHeader>
+                    <TableHeader className="bg-blue-600 text-white">
                         <TableRow>
-                            <TableHead>Logo</TableHead>
-                            <TableHead>Tên công ty</TableHead>
-                            <TableHead>Địa chỉ</TableHead>
-                            <TableHead>Mô tả</TableHead>
-                            <TableHead>Ngày tạo</TableHead>
-                            <TableHead className="text-right">
+                            <TableHead className="text-center font-bold text-white">Logo</TableHead>
+                            <TableHead className="text-center font-bold text-white">Tên công ty</TableHead>
+                            <TableHead className="text-center font-bold text-white">Địa chỉ</TableHead>
+                            <TableHead className="text-center font-bold text-white">Ngày tạo</TableHead>
+                            <TableHead className="text-center font-bold text-white">Cập nhật</TableHead>
+                            <TableHead className="text-center font-bold text-white">
                                 Hành động
                             </TableHead>
                         </TableRow>
@@ -88,15 +88,15 @@ export function CompanyTable({
                     <TableBody>
                         {companies.map((company) => (
                             <TableRow key={company.id}>
-                                <TableCell>
+                                <TableCell className="text-center">
                                     {company.logoUrl ? (
                                         <img
                                             src={company.logoUrl}
                                             alt={company.name}
-                                            className="w-10 h-10 rounded-lg object-cover"
+                                            className="w-10 h-10 rounded-lg object-cover mx-auto"
                                         />
                                     ) : (
-                                        <div className="w-10 h-10 rounded-lg bg-gray-200 flex items-center justify-center">
+                                        <div className="w-10 h-10 rounded-lg bg-gray-200 flex items-center justify-center mx-auto">
                                             <Building2
                                                 size={20}
                                                 className="text-gray-400"
@@ -104,39 +104,43 @@ export function CompanyTable({
                                         </div>
                                     )}
                                 </TableCell>
-                                <TableCell className="font-medium">
+                                <TableCell className="text-center font-medium">
                                     {company.name}
                                 </TableCell>
-                                <TableCell>{company.address}</TableCell>
-                                <TableCell className="max-w-xs truncate">
-                                    {company.description || "-"}
-                                </TableCell>
-                                <TableCell>
+                                <TableCell className="text-center">{company.address}</TableCell>
+                                <TableCell className="text-center">
                                     {formatISO(company.createdAt)}
                                 </TableCell>
-                                <TableCell className="text-right space-x-2">
-                                    <HasPermission perm="PATCH /company/:id">
-                                        <Button
-                                            variant="outline"
-                                            size="sm"
-                                            onClick={() =>
-                                                handleEditClick(company)
-                                            }
-                                        >
-                                            <Edit size={16} />
-                                        </Button>
-                                    </HasPermission>
-                                    <HasPermission perm="DELETE /company/:id">
-                                        <Button
-                                            variant="destructive"
-                                            size="sm"
-                                            onClick={() =>
-                                                handleDeleteClick(company.id)
-                                            }
-                                        >
-                                            <Trash2 size={16} />
-                                        </Button>
-                                    </HasPermission>
+                                <TableCell className="text-center">
+                                    {formatISO(company.updatedAt)}
+                                </TableCell>
+                                <TableCell className="text-center">
+                                    <div className="flex items-center justify-center gap-2">
+                                        <HasPermission perm="PATCH /company/:id">
+                                            <Button
+                                                size="icon"
+                                                variant="ghost"
+                                                className="text-orange-500 hover:text-orange-600"
+                                                onClick={() =>
+                                                    handleEditClick(company)
+                                                }
+                                            >
+                                                <Edit className="h-4 w-4" />
+                                            </Button>
+                                        </HasPermission>
+                                        <HasPermission perm="DELETE /company/:id">
+                                            <Button
+                                                size="icon"
+                                                variant="ghost"
+                                                className="text-red-500 hover:text-red-600"
+                                                onClick={() =>
+                                                    handleDeleteClick(company.id)
+                                                }
+                                            >
+                                                <Trash2 className="h-4 w-4" />
+                                            </Button>
+                                        </HasPermission>
+                                    </div>
                                 </TableCell>
                             </TableRow>
                         ))}
