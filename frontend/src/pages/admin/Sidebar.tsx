@@ -52,7 +52,7 @@ const menuItems: MenuItem[] = [
         title: "Công ty",
         url: "/admin/company",
         icon: Building2,
-        permission: "GET /companies",
+        permission: "GET /company",
     },
     {
         title: "Tuyển dụng",

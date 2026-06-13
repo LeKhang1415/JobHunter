@@ -1,8 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { RotateCcw, Search } from "lucide-react";
+import { RotateCcw } from "lucide-react";
 
 interface CompanySearchProps {
     searchName: string;
@@ -16,45 +15,24 @@ export default function CompanySearch({
     onReset,
 }: CompanySearchProps) {
     return (
-        <Card>
-            <CardHeader>
-                <CardTitle className="text-lg">Tìm kiếm</CardTitle>
-            </CardHeader>
-            <CardContent>
-                <div className="space-y-4">
-                    <div className="space-y-2">
-                        <Label htmlFor="search-name">Tên công ty</Label>
-                        <div className="flex gap-2">
-                            <div className="relative flex-1">
-                                <Search
-                                    className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"
-                                    size={18}
-                                />
-                                <Input
-                                    id="search-name"
-                                    placeholder="Nhập tên công ty..."
-                                    value={searchName}
-                                    onChange={(e) =>
-                                        setSearchName(e.target.value)
-                                    }
-                                    className="pl-10"
-                                />
-                            </div>
-                        </div>
-                    </div>
-
-                    <div className="flex gap-2">
-                        <Button
-                            variant="outline"
-                            onClick={onReset}
-                            className="flex items-center gap-2"
-                        >
-                            <RotateCcw size={16} />
-                            Đặt lại
-                        </Button>
-                    </div>
+        <div className="bg-card rounded-lg border p-4">
+            <div className="grid grid-cols-1 items-end gap-4 md:grid-cols-3">
+                <div className="space-y-2">
+                    <Label htmlFor="search-company-name">Tên công ty:</Label>
+                    <Input
+                        id="search-company-name"
+                        placeholder="Nhập tên công ty..."
+                        value={searchName}
+                        onChange={(e) => setSearchName(e.target.value)}
+                    />
                 </div>
-            </CardContent>
-        </Card>
+                <div className="flex gap-2">
+                    <Button variant="outline" onClick={onReset}>
+                        <RotateCcw className="mr-2 h-4 w-4" />
+                        Làm lại
+                    </Button>
+                </div>
+            </div>
+        </div>
     );
 }

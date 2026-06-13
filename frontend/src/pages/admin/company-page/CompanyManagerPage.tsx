@@ -1,6 +1,5 @@
 import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
-
 import { getAllCompanies, deleteCompany } from "@/services/companyApi";
 import type { DefaultCompanyResponseDto } from "@/types/company.type";
 import Pagination from "@/components/custom/Pagination";
@@ -94,10 +93,10 @@ const CompanyManagerPage = () => {
             <div className="flex items-center justify-between">
                 <h2 className="text-lg font-semibold">Danh sách Công ty</h2>
                 <Button
+                    className="bg-blue-600 hover:bg-blue-700"
                     onClick={() => setIsDialogOpen(true)}
-                    className="flex items-center gap-2"
                 >
-                    <Plus size={18} />
+                    <Plus className="mr-2 h-4 w-4" />
                     Thêm công ty
                 </Button>
             </div>
