@@ -78,6 +78,7 @@ export function CompanyTable({
                             <TableHead className="text-center font-bold text-white">Logo</TableHead>
                             <TableHead className="text-center font-bold text-white">Tên công ty</TableHead>
                             <TableHead className="text-center font-bold text-white">Địa chỉ</TableHead>
+                            <TableHead className="text-center font-bold text-white">Chủ sở hữu</TableHead>
                             <TableHead className="text-center font-bold text-white">Ngày tạo</TableHead>
                             <TableHead className="text-center font-bold text-white">Cập nhật</TableHead>
                             <TableHead className="text-center font-bold text-white">
@@ -108,6 +109,18 @@ export function CompanyTable({
                                     {company.name}
                                 </TableCell>
                                 <TableCell className="text-center">{company.address}</TableCell>
+                                <TableCell className="text-center">
+                                    {company.owner ? (
+                                        <div className="flex flex-col items-center gap-0.5">
+                                            <span className="font-medium text-sm">{company.owner.name}</span>
+                                            <span className="text-xs text-muted-foreground">{company.owner.email}</span>
+                                        </div>
+                                    ) : (
+                                        <span className="inline-flex items-center rounded-full bg-gray-100 px-2.5 py-0.5 text-xs font-medium text-gray-500 dark:bg-gray-800 dark:text-gray-400">
+                                            Vô chủ
+                                        </span>
+                                    )}
+                                </TableCell>
                                 <TableCell className="text-center">
                                     {formatISO(company.createdAt)}
                                 </TableCell>

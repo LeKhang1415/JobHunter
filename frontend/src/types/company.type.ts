@@ -14,6 +14,11 @@ export interface DefaultCompanyResponseDto {
     createdAt: string;
     updatedAt: string;
     jobsCount?: number;
+    owner?: {
+        id: string;
+        name: string;
+        email: string;
+    };
 }
 
 export interface CreateCompanyRequestDto {
