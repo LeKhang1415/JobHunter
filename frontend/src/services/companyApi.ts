@@ -65,6 +65,27 @@ export const getAllCompanies = (params: {
     });
 };
 
+// Public functions (no auth required)
+export const getAllPublicCompanies = (params: {
+    page?: number;
+    limit?: number;
+    searchName?: string;
+}) => {
+    return axiosClient.get<
+        ApiResponse<{
+            data: DefaultCompanyResponseDto[];
+            meta: {
+                totalItems: number;
+                totalPages: number;
+                currentPage: number;
+                itemsPerPage: number;
+            };
+        }>
+    >("/company/public", {
+        params,
+    });
+};
+
 export const deleteCompany = (id: string) => {
     return axiosClient.delete(`/company/${id}`);
 };

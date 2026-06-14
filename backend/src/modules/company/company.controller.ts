@@ -20,6 +20,7 @@ import { RecruiterRequestDto } from './dtos/recruiter-request.dto';
 import { CurrentUser } from 'src/common/decorators/user-infor.decorator';
 import { ResponseMessage } from 'src/common/decorators/response-message.decorator';
 import { RequirePermissions } from 'src/common/decorators/permission.decorator';
+import { Public } from 'src/common/decorators/public.decorator';
 
 import { JwtPayload } from '../auth/interfaces/jwt-payload.interface';
 import { RoleEnum } from 'src/common/enums/role.enum';
@@ -105,6 +106,13 @@ export class CompanyController {
     @CurrentUser() user: JwtPayload,
   ) {
     return this.companyService.removeMemberFromCompany(dto, user);
+  }
+
+  @Public()
+  @ResponseMessage('Lấy danh sách công ty thành công')
+  @Get('public')
+  findAllPublicCompanies(@Query() pagination: PaginationQueryDto) {
+    return this.companyService.findAllPublicCompanies(pagination);
   }
 
   @RequirePermissions('GET /company/:id')

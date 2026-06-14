@@ -6,4 +6,9 @@ export class CompanyResponseDto {
   logoUrl: string | null;
   createdAt: string;
   updatedAt: string;
+  owner?: {
+    id: string;
+    name: string;
+    email: string;
+  } | null;
 }

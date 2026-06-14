@@ -297,6 +297,27 @@ export class CompanyService {
 
       createdAt: company.createdAt.toISOString(),
       updatedAt: company.updatedAt.toISOString(),
+
+      owner: company.owner
+        ? { id: company.owner.id, name: company.owner.name, email: company.owner.email }
+        : null,
+    };
+  }
+
+  async findAllPublicCompanies(
+    pagination: PaginationQueryDto,
+  ): Promise<Paginated<CompanyResponseDto>> {
+    const paginated = await this.paginationProvider.paginateQuery(
+      pagination,
+      this.companyRepository,
+      {},
+      {},
+      ['companyLogo', 'owner'],
+    );
+
+    return {
+      data: paginated.data.map((company) => this.mapToResponseDto(company)),
+      meta: paginated.meta,
     };
   }
 }
