@@ -379,8 +379,8 @@ export class JobService {
       quantity: job.quantity,
       level: job.level,
       description: job.description,
-      startDate: job.startDate.toISOString(),
-      endDate: job.endDate.toISOString(),
+      startDate: new Date(job.startDate).toISOString(),
+      endDate: new Date(job.endDate).toISOString(),
       active: job.active,
 
       company: job.company
@@ -388,7 +388,7 @@ export class JobService {
             id: job.company.id,
             name: job.company.name,
             address: job.company.address,
-            logoUrl: job.company.companyLogo.logoUrl,
+            logoUrl: job.company.companyLogo?.logoUrl || '',
           }
         : null,
 
