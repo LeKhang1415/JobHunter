@@ -17,10 +17,11 @@ import { CreateJobDto } from './dtos/create-job.dto';
 import { UpdateJobDto } from './dtos/update-job.dto';
 import { JwtPayload } from '../auth/interfaces/jwt-payload.interface';
 import { JobPaginationQueryDto } from './dtos/job-pagination-query.dto';
+import { Public } from 'src/common/decorators/public.decorator';
 
 @Controller('jobs')
 export class JobController {
-  constructor(private readonly jobService: JobService) {}
+  constructor(private readonly jobService: JobService) { }
 
   @RequirePermissions('POST /jobs/recruiter')
   @ResponseMessage('Nhà tuyển dụng tạo công việc thành công')
@@ -81,7 +82,7 @@ export class JobController {
     return this.jobService.findByCompanyId(companyId);
   }
 
-  @RequirePermissions('GET /jobs/:id')
+  @Public()
   @ResponseMessage('Lấy thông tin công việc thành công')
   @Get(':id')
   findById(@Param('id') id: string) {
