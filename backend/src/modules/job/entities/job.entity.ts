@@ -51,7 +51,6 @@ export class Job {
   resumes: Resume[];
 
   @ManyToMany(() => Skill, (skill) => skill.jobs)
-  @ManyToMany(() => Job, (job) => job.skills)
   @JoinTable({
     name: 'jobs-skills',
   })

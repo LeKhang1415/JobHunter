@@ -25,7 +25,7 @@ import {
     BreadcrumbPage,
     BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb.tsx";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, Loader2 } from "lucide-react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { getErrorMessage } from "@/features/slices/auth/authThunk.ts";
 import {
@@ -37,6 +37,8 @@ import { formatISOToYMD } from "@/utils/convertHelper.ts";
 import { useAppSelector } from "@/features/hooks.ts";
 import type { DefaultJobRequestDto, SkillSummary } from "@/types/job.type";
 import RichTextEditor from "@/components/custom/RichText/RichTextEditor";
+import SkillSelection from "@/pages/commons/job-manager-page/SkillSelection";
+import { toast } from "sonner";
 
 const levels = [
     { value: "INTERN", label: "Intern" },
@@ -46,9 +48,9 @@ const levels = [
 ];
 
 export default function JobUpsertRecruiterPage() {
-    const { permissions, companyId } = useAppSelector(
-        (state) => state.auth.user,
-    );
+    const user = useAppSelector((state) => state.auth.user);
+    const permissions = user?.permissions || [];
+    const companyId = user?.company?.id || "";
 
     const navigate = useNavigate();
     const [searchParams, setSearchParams] = useSearchParams();
@@ -71,11 +73,14 @@ export default function JobUpsertRecruiterPage() {
 
     const [selectedSkills, setSelectedSkills] = useState<SkillSummary[]>([]);
     const [isLoading, setIsLoading] = useState(false);
+    const [isFetching, setIsFetching] = useState(false);
+    const [errors, setErrors] = useState<Record<string, string>>({});
 
+    // Fetch job data when editing
     useEffect(() => {
         if (id) {
             const fetchData = async () => {
-                setIsLoading(true);
+                setIsFetching(true);
                 try {
                     const res = await findJobById(id);
                     const job = res.data.result;
@@ -85,12 +90,12 @@ export default function JobUpsertRecruiterPage() {
                     setFormData(job);
                     setSelectedSkills(job.skills || []);
                 } catch (err) {
-                    console.error(
+                    toast.error(
                         getErrorMessage(err, "Không tìm thấy công việc này"),
                     );
                     setSearchParams({});
                 } finally {
-                    setIsLoading(false);
+                    setIsFetching(false);
                 }
             };
 
@@ -98,10 +103,17 @@ export default function JobUpsertRecruiterPage() {
         }
     }, [id, setSearchParams]);
 
+    // Permission check
+    useEffect(() => {
+        if (isEdit && !permissions.includes("PATCH /jobs/recruiter/:id"))
+            navigate("/recruiter/jobs");
+        else if (!isEdit && !permissions.includes("POST /jobs/recruiter"))
+            navigate("/recruiter/jobs");
+    }, [isEdit, navigate, permissions]);
+
     const addSkill = (skill: SkillSummary) => {
         const exists = selectedSkills.some((s) => s.id === skill.id);
         if (exists) return;
-
         setSelectedSkills([...selectedSkills, skill]);
     };
 
@@ -114,14 +126,37 @@ export default function JobUpsertRecruiterPage() {
         value: string | number | boolean,
     ) => {
         setFormData((prev) => ({ ...prev, [field]: value }));
+        if (errors[field]) {
+            setErrors((prev) => ({ ...prev, [field]: "" }));
+        }
     };
 
     const toISODate = (dateStr: string): string => {
         return new Date(dateStr).toISOString();
     };
 
+    const validateForm = (): boolean => {
+        const newErrors: Record<string, string> = {};
+
+        if (!formData.name.trim()) newErrors.name = "Tên Job là bắt buộc";
+        if (!formData.location.trim())
+            newErrors.location = "Địa điểm là bắt buộc";
+        if (!formData.startDate)
+            newErrors.startDate = "Ngày bắt đầu là bắt buộc";
+        if (!formData.endDate)
+            newErrors.endDate = "Ngày kết thúc là bắt buộc";
+        if (!formData.description.trim())
+            newErrors.description = "Mô tả là bắt buộc";
+
+        setErrors(newErrors);
+        return Object.keys(newErrors).length === 0;
+    };
+
     const handleFormSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
+
+        if (!validateForm()) return;
+
         setIsLoading(true);
 
         try {
@@ -141,21 +176,17 @@ export default function JobUpsertRecruiterPage() {
                 skillIds: selectedSkills.map((s) => s.id),
             };
 
-            // 3. Gọi API
             if (isEdit) {
                 await updateJobByIdForRecruiter(id as string, payload);
+                toast.success("Cập nhật công việc thành công");
             } else {
                 await createJobForRecruiter(payload);
+                toast.success("Tạo công việc mới thành công");
             }
 
-            console.log(
-                isEdit
-                    ? "Cập nhật công việc thành công"
-                    : "Tạo công việc mới thành công",
-            );
             handleBack();
         } catch (err) {
-            console.error(getErrorMessage(err, "Thao tác thất bại"));
+            toast.error(getErrorMessage(err, "Thao tác thất bại"));
         } finally {
             setIsLoading(false);
         }
@@ -165,12 +196,13 @@ export default function JobUpsertRecruiterPage() {
         navigate("/recruiter/jobs");
     };
 
-    useEffect(() => {
-        if (isEdit && !permissions.includes("PATCH /jobs/recruiter/:id"))
-            navigate("/recruiter/job-manager");
-        else if (!isEdit && !permissions.includes("POST /jobs/recruiter"))
-            navigate("/recruiter/job-manager");
-    }, [isEdit, navigate, permissions]);
+    if (isFetching) {
+        return (
+            <div className="flex items-center justify-center min-h-[400px]">
+                <Loader2 className="h-8 w-8 animate-spin text-purple-600" />
+            </div>
+        );
+    }
 
     return (
         <div className="space-y-6">
@@ -217,6 +249,7 @@ export default function JobUpsertRecruiterPage() {
                 </CardHeader>
                 <CardContent>
                     <form className="space-y-6" onSubmit={handleFormSubmit}>
+                        {/* Row 1 - Name & Location */}
                         <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
                             <div className="space-y-2">
                                 <Label htmlFor="name">
@@ -233,8 +266,16 @@ export default function JobUpsertRecruiterPage() {
                                             e.target.value,
                                         )
                                     }
+                                    className={
+                                        errors.name ? "border-red-500" : ""
+                                    }
                                     required
                                 />
+                                {errors.name && (
+                                    <span className="text-xs text-red-500">
+                                        {errors.name}
+                                    </span>
+                                )}
                             </div>
                             <div className="space-y-2">
                                 <Label htmlFor="location">
@@ -251,11 +292,20 @@ export default function JobUpsertRecruiterPage() {
                                             e.target.value,
                                         )
                                     }
+                                    className={
+                                        errors.location ? "border-red-500" : ""
+                                    }
                                     required
                                 />
+                                {errors.location && (
+                                    <span className="text-xs text-red-500">
+                                        {errors.location}
+                                    </span>
+                                )}
                             </div>
                         </div>
 
+                        {/* Row 2 - Salary, Quantity, Level */}
                         <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
                             <div className="space-y-2">
                                 <Label htmlFor="salary">
@@ -332,7 +382,7 @@ export default function JobUpsertRecruiterPage() {
                             </div>
                         </div>
 
-                        {/* Row 3 */}
+                        {/* Row 3 - Dates & Status */}
                         <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
                             <div className="space-y-2">
                                 <Label htmlFor="startDate">
@@ -349,9 +399,14 @@ export default function JobUpsertRecruiterPage() {
                                             e.target.value,
                                         )
                                     }
+                                    className={`w-fit ${errors.startDate ? "border-red-500" : ""}`}
                                     required
-                                    className="w-fit"
                                 />
+                                {errors.startDate && (
+                                    <span className="text-xs text-red-500">
+                                        {errors.startDate}
+                                    </span>
+                                )}
                             </div>
                             <div className="space-y-2">
                                 <Label htmlFor="endDate">
@@ -368,9 +423,14 @@ export default function JobUpsertRecruiterPage() {
                                             e.target.value,
                                         )
                                     }
+                                    className={`w-fit ${errors.endDate ? "border-red-500" : ""}`}
                                     required
-                                    className="w-fit"
                                 />
+                                {errors.endDate && (
+                                    <span className="text-xs text-red-500">
+                                        {errors.endDate}
+                                    </span>
+                                )}
                             </div>
 
                             <div className="space-y-2">
@@ -408,10 +468,15 @@ export default function JobUpsertRecruiterPage() {
                                 }
                                 placeholder="Nhập mô tả chi tiết về job..."
                             />
+                            {errors.description && (
+                                <span className="text-xs text-red-500">
+                                    {errors.description}
+                                </span>
+                            )}
                         </div>
 
+                        {/* Skills */}
                         <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
-                            {/* Skills */}
                             <SkillSelection
                                 selectedSkills={selectedSkills}
                                 onAddSkill={addSkill}
@@ -431,13 +496,16 @@ export default function JobUpsertRecruiterPage() {
                             <Button
                                 type="submit"
                                 disabled={isLoading}
-                                className="bg-blue-600 hover:bg-blue-700"
+                                className="bg-purple-600 hover:bg-purple-700"
                             >
+                                {isLoading && (
+                                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                                )}
                                 {isLoading
                                     ? "Đang xử lý..."
                                     : isEdit
-                                      ? "Cập nhật"
-                                      : "Thêm mới"}
+                                        ? "Cập nhật"
+                                        : "Thêm mới"}
                             </Button>
                         </div>
                     </form>

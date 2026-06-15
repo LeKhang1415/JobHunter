@@ -18,9 +18,11 @@ import SkillManagerRecruiterPage from "@/pages/recruiter/skill-page";
 import PermissionManagerPage from "@/pages/admin/access-control-page/permission-page";
 import RoleManagerPage from "@/pages/admin/access-control-page/role-page";
 import JobManageRecruiterPage from "@/pages/recruiter/job-page";
+import JobUpsertRecruiterPage from "@/pages/recruiter/job-page/job-upsert-page";
 import UserManagerPage from "@/pages/admin/user-manager-page";
 import UserUpsertPage from "@/pages/admin/user-manager-page/UserUpsertPage";
 import CompanyManagerPage from "@/pages/admin/company-page";
+import JobManagerAdminPage from "@/pages/admin/job-manager-page";
 
 export const router = createBrowserRouter([
     {
@@ -47,6 +49,7 @@ export const router = createBrowserRouter([
             { path: "members", element: <MemberManagePage /> },
             { path: "skills", element: <SkillManagerRecruiterPage /> },
             { path: "jobs", element: <JobManageRecruiterPage /> },
+            { path: "jobs/upsert", element: <JobUpsertRecruiterPage /> },
         ],
     },
 
@@ -60,6 +63,7 @@ export const router = createBrowserRouter([
             { path: "skill-manager", element: <SkillManagerAdminPage /> },
             { path: "user-manager", element: <UserManagerPage /> },
             { path: "user-manager/upsert", element: <UserUpsertPage /> },
+            { path: "job-manager", element: <JobManagerAdminPage /> },
             {
                 path: "access-control/permission",
                 element: <PermissionManagerPage />,

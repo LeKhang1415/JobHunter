@@ -152,8 +152,8 @@ export function JobTable({
                                     >
                                         <HasPermission
                                             perm={[
-                                                "PATCH /jobs/{id}",
-                                                "PATCH /jobs/company/{id}",
+                                                "PATCH /jobs/:id",
+                                                "PATCH /jobs/recruiter/:id",
                                             ]}
                                         >
                                             <Button
@@ -167,8 +167,8 @@ export function JobTable({
 
                                         <HasPermission
                                             perm={[
-                                                "DELETE /jobs/{id}",
-                                                "DELETE /jobs/company/{id}",
+                                                "DELETE /jobs/:id",
+                                                "DELETE /jobs/recruiter/:id",
                                             ]}
                                         >
                                             <DeleteConfirmDialog

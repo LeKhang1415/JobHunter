@@ -1,19 +1,15 @@
 import Pagination from "@/components/custom/Pagination";
-import { Button } from "@/components/ui/button";
 import { getErrorMessage } from "@/features/slices/auth/authThunk";
 import { JobDetailsSidebar } from "@/pages/commons/job-manager-page/JobDetailsSidebar";
 import { JobSearchSection } from "@/pages/commons/job-manager-page/JobSearchSection";
 import { JobTable } from "@/pages/commons/job-manager-page/JobTable";
-import {
-    deleteJobForRecruiter,
-    findAllJobsForRecruiterCompany,
-} from "@/services/jobApi";
+import { findAllJobs, deleteJobById } from "@/services/jobApi";
 import type { Job, JobPaginationQuery } from "@/types/job.type";
-import { Plus } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { toast } from "sonner";
 
-const JobManagerRecruiterPage = () => {
+const JobManagerAdminPage = () => {
     const navigate = useNavigate();
 
     const [jobs, setJobs] = useState<Job[]>([]);
@@ -27,6 +23,7 @@ const JobManagerRecruiterPage = () => {
     const [isExpandedSearch, setIsExpandedSearch] = useState(false);
 
     const [searchName, setSearchName] = useState("");
+    const [searchCompanyName, setSearchCompanyName] = useState("");
     const [searchLevel, setSearchLevel] = useState("all");
     const [searchLocation, setSearchLocation] = useState("");
 
@@ -46,9 +43,10 @@ const JobManagerRecruiterPage = () => {
     const fetchJobs = async (
         page: number,
         size: number,
-        searchName: string,
-        searchLevel: string,
-        searchLocation: string,
+        name: string,
+        companyName: string,
+        level: string,
+        location: string,
     ) => {
         setIsLoading(true);
         try {
@@ -57,20 +55,19 @@ const JobManagerRecruiterPage = () => {
                 limit: size,
             };
 
-            if (searchName) params.name = searchName;
-            if (searchLevel && searchLevel !== "all")
-                params.level = searchLevel;
-            if (searchLocation) params.location = searchLocation;
+            if (name) params.name = name;
+            if (companyName) params.companyName = companyName;
+            if (level && level !== "all") params.level = level;
+            if (location) params.location = location;
 
-            const response = await findAllJobsForRecruiterCompany(params);
-
+            const response = await findAllJobs(params);
             const paginatedResult = response.data.result;
 
             setJobs(paginatedResult.data);
             setTotalElements(paginatedResult.meta.totalItems);
             setTotalPages(paginatedResult.meta.totalPages);
         } catch (err) {
-            console.error(
+            toast.error(
                 getErrorMessage(err, "Không thể lấy danh sách công việc"),
             );
         } finally {
@@ -79,53 +76,67 @@ const JobManagerRecruiterPage = () => {
     };
 
     useEffect(() => {
-        fetchJobs(
-            currentPage,
-            itemsPerPage,
-            searchName,
-            searchLevel,
-            searchLocation,
-        );
-    }, [currentPage, itemsPerPage, searchName, searchLevel, searchLocation]);
+        const timeout = setTimeout(() => {
+            fetchJobs(
+                currentPage,
+                itemsPerPage,
+                searchName,
+                searchCompanyName,
+                searchLevel,
+                searchLocation,
+            );
+        }, 300);
+
+        return () => clearTimeout(timeout);
+    }, [
+        currentPage,
+        itemsPerPage,
+        searchName,
+        searchCompanyName,
+        searchLevel,
+        searchLocation,
+    ]);
+
+    useEffect(() => {
+        setCurrentPage(1);
+    }, [searchName, searchCompanyName, searchLevel, searchLocation]);
 
     const handleReset = () => {
         setSearchName("");
+        setSearchCompanyName("");
         setSearchLevel("all");
         setSearchLocation("");
         setIsExpandedSearch(false);
-
-        fetchJobs(
-            currentPage,
-            itemsPerPage,
-            searchName,
-            searchLevel,
-            searchLocation,
-        );
     };
 
     const handleDelete = async (id: string) => {
-        setIsLoading(true);
         try {
-            await deleteJobForRecruiter(id);
-            console.log("Xóa công ty thành công");
+            await deleteJobById(id);
+            toast.success("Xóa công việc thành công");
 
             if (hoveredJob?.id === id) handleCloseDetails();
-            handleReset();
+            fetchJobs(
+                currentPage,
+                itemsPerPage,
+                searchName,
+                searchCompanyName,
+                searchLevel,
+                searchLocation,
+            );
         } catch (err) {
-            console.log(getErrorMessage(err, "Xóa công ty thất bại"));
-        } finally {
-            setIsLoading(false);
+            toast.error(getErrorMessage(err, "Xóa công việc thất bại"));
         }
     };
 
-    const handleOpenUpdatePage = async (id: string) => {
-        navigate(`/recruiter/jobs/upsert?id=${id}`);
+    const handleOpenUpdatePage = (id: string) => {
+        navigate(`/admin/job-manager/upsert?id=${id}`);
     };
 
     return (
         <div className="space-y-6">
             <JobSearchSection
                 searchName={searchName}
+                searchCompanyName={searchCompanyName}
                 searchLevel={searchLevel}
                 searchLocation={searchLocation}
                 isExpanded={isExpandedSearch}
@@ -133,6 +144,7 @@ const JobManagerRecruiterPage = () => {
                 onExpandToggle={() => setIsExpandedSearch(!isExpandedSearch)}
                 onChange={{
                     name: setSearchName,
+                    company: setSearchCompanyName,
                     level: setSearchLevel,
                     location: setSearchLocation,
                 }}
@@ -140,14 +152,9 @@ const JobManagerRecruiterPage = () => {
 
             {/* Header Section */}
             <div className="flex items-center justify-between">
-                <h2 className="text-lg font-semibold">Danh sách công việc</h2>
-                <Button
-                    className="bg-purple-600 hover:bg-purple-700"
-                    onClick={() => navigate("/recruiter/jobs/upsert")}
-                >
-                    <Plus className="mr-2 h-4 w-4" />
-                    Thêm mới
-                </Button>
+                <h2 className="text-lg font-semibold">
+                    Danh sách công việc
+                </h2>
             </div>
 
             <JobTable
@@ -156,7 +163,7 @@ const JobManagerRecruiterPage = () => {
                 onEdit={handleOpenUpdatePage}
                 onDelete={handleDelete}
                 onView={(job) => handleOpenDetails(job)}
-                theme={"purple"}
+                theme={"blue"}
             />
 
             <Pagination
@@ -167,7 +174,7 @@ const JobManagerRecruiterPage = () => {
                 itemsPerPage={itemsPerPage}
                 setItemsPerPage={setItemsPerPage}
                 showItemsPerPageSelect={true}
-                theme={"purple"}
+                theme={"blue"}
             />
 
             {hoveredJob && (
@@ -183,4 +190,4 @@ const JobManagerRecruiterPage = () => {
     );
 };
 
-export default JobManagerRecruiterPage;
+export default JobManagerAdminPage;
