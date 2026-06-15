@@ -23,6 +23,7 @@ import UserManagerPage from "@/pages/admin/user-manager-page";
 import UserUpsertPage from "@/pages/admin/user-manager-page/UserUpsertPage";
 import CompanyManagerPage from "@/pages/admin/company-page";
 import JobManagerAdminPage from "@/pages/admin/job-manager-page";
+import JobUpsertAdminPage from "@/pages/admin/job-manager-page/job-upsert-page";
 
 export const router = createBrowserRouter([
     {
@@ -64,6 +65,7 @@ export const router = createBrowserRouter([
             { path: "user-manager", element: <UserManagerPage /> },
             { path: "user-manager/upsert", element: <UserUpsertPage /> },
             { path: "job-manager", element: <JobManagerAdminPage /> },
+            { path: "job-manager/upsert", element: <JobUpsertAdminPage /> },
             {
                 path: "access-control/permission",
                 element: <PermissionManagerPage />,
