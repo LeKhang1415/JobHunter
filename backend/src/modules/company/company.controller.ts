@@ -25,6 +25,7 @@ import { Public } from 'src/common/decorators/public.decorator';
 import { JwtPayload } from '../auth/interfaces/jwt-payload.interface';
 import { RoleEnum } from 'src/common/enums/role.enum';
 import { PaginationQueryDto } from 'src/common/pagination/dtos/pagination-query.dto';
+import { CompanyQueryDto } from './dtos/company-query.dto';
 
 @Controller('company')
 export class CompanyController {
@@ -73,7 +74,7 @@ export class CompanyController {
   @RequirePermissions('GET /company')
   @ResponseMessage('Lấy danh sách công ty thành công')
   @Get()
-  findAllCompanies(@Query() pagination: PaginationQueryDto) {
+  findAllCompanies(@Query() pagination: CompanyQueryDto) {
     return this.companyService.findAllCompanies(pagination);
   }
 
@@ -111,7 +112,7 @@ export class CompanyController {
   @Public()
   @ResponseMessage('Lấy danh sách công ty thành công')
   @Get('public')
-  findAllPublicCompanies(@Query() pagination: PaginationQueryDto) {
+  findAllPublicCompanies(@Query() pagination: CompanyQueryDto) {
     return this.companyService.findAllPublicCompanies(pagination);
   }
 

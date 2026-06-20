@@ -7,7 +7,7 @@ import {
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Company } from './entities/company.entity';
-import { Repository } from 'typeorm';
+import { Repository, ILike } from 'typeorm';
 import { User } from '../users/entities/user.entity';
 import { CompanyLogo } from './entities/company-logo.entity';
 import { UploadService } from '../upload/upload.service';
@@ -17,7 +17,7 @@ import { CreateCompanyDto } from './dtos/create-company.dto';
 import { UsersService } from '../users/users.service';
 import { UpdateCompanyDto } from './dtos/update-company.dto';
 import { PaginationProvider } from 'src/common/pagination/providers/pagination.provider';
-import { PaginationQueryDto } from 'src/common/pagination/dtos/pagination-query.dto';
+import { CompanyQueryDto } from './dtos/company-query.dto';
 import { Paginated } from 'src/common/pagination/interfaces/paginated.interface';
 import { RecruiterRequestDto } from './dtos/recruiter-request.dto';
 import { RecruiterInfoResponseDto } from './dtos/recruiter-info-response.dto';
@@ -40,7 +40,7 @@ export class CompanyService {
     private readonly uploadService: UploadService,
 
     private readonly paginationProvider: PaginationProvider,
-  ) {}
+  ) { }
 
   async createCompany(
     createCompanyDto: CreateCompanyDto,
@@ -151,12 +151,19 @@ export class CompanyService {
   }
 
   async findAllCompanies(
-    pagination: PaginationQueryDto,
+    pagination: CompanyQueryDto,
   ): Promise<Paginated<CompanyResponseDto>> {
+    const where = pagination.search
+      ? [
+        { name: ILike(`%${pagination.search}%`) },
+        { address: ILike(`%${pagination.search}%`) },
+      ]
+      : {};
+
     const paginated = await this.paginationProvider.paginateQuery(
       pagination,
       this.companyRepository,
-      {},
+      where,
       {},
       ['companyLogo', 'owner'],
     );
@@ -305,12 +312,19 @@ export class CompanyService {
   }
 
   async findAllPublicCompanies(
-    pagination: PaginationQueryDto,
+    pagination: CompanyQueryDto,
   ): Promise<Paginated<CompanyResponseDto>> {
+    const where = pagination.search
+      ? [
+        { name: ILike(`%${pagination.search}%`) },
+        { address: ILike(`%${pagination.search}%`) },
+      ]
+      : {};
+
     const paginated = await this.paginationProvider.paginateQuery(
       pagination,
       this.companyRepository,
-      {},
+      where,
       {},
       ['companyLogo', 'owner'],
     );
