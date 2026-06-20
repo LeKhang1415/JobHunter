@@ -153,12 +153,13 @@ export class CompanyService {
   async findAllCompanies(
     pagination: CompanyQueryDto,
   ): Promise<Paginated<CompanyResponseDto>> {
-    const where = pagination.search
-      ? [
-        { name: ILike(`%${pagination.search}%`) },
-        { address: ILike(`%${pagination.search}%`) },
-      ]
-      : {};
+    const where: any = {};
+    if (pagination.name) {
+      where.name = ILike(`%${pagination.name}%`);
+    }
+    if (pagination.address) {
+      where.address = ILike(`%${pagination.address}%`);
+    }
 
     const paginated = await this.paginationProvider.paginateQuery(
       pagination,
@@ -275,11 +276,12 @@ export class CompanyService {
             .andWhere('job.endDate >= :date', { date: new Date() }),
       );
 
-    if (pagination.search) {
-      queryBuilder.andWhere(
-        '(company.name ILIKE :search OR company.address ILIKE :search)',
-        { search: `%${pagination.search}%` },
-      );
+    if (pagination.name) {
+      queryBuilder.andWhere('company.name ILIKE :name', { name: `%${pagination.name}%` });
+    }
+
+    if (pagination.address) {
+      queryBuilder.andWhere('company.address ILIKE :address', { address: `%${pagination.address}%` });
     }
 
     const paginated = await this.paginationProvider.paginateQueryBuilder(
@@ -350,7 +352,7 @@ export class CompanyService {
         }
         : null,
 
-      jobCount: (company as any).jobCount || 0,
+      jobsCount: (company as any).jobCount || 0,
     };
   }
 }

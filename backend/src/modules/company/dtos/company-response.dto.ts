@@ -11,5 +11,5 @@ export class CompanyResponseDto {
     name: string;
     email: string;
   } | null;
-  jobCount?: number;
+  jobsCount?: number;
 }

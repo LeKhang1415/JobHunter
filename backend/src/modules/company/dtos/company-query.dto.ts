@@ -4,5 +4,9 @@ import { PaginationQueryDto } from 'src/common/pagination/dtos/pagination-query.
 export class CompanyQueryDto extends PaginationQueryDto {
   @IsOptional()
   @IsString()
-  search?: string;
+  name?: string;
+
+  @IsOptional()
+  @IsString()
+  address?: string;
 }
