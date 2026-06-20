@@ -32,7 +32,7 @@ export class JobService {
 
     @InjectRepository(Job)
     private readonly jobRepository: Repository<Job>,
-  ) {}
+  ) { }
   async create(createJobDto: CreateJobDto): Promise<JobResponseDto> {
     if (new Date(createJobDto.startDate) >= new Date(createJobDto.endDate)) {
       throw new BadRequestException('Ngày bắt đầu phải nhỏ hơn kết thúc');
@@ -340,6 +340,14 @@ export class JobService {
     });
   }
 
+  async countByCompanyId(companyId: string): Promise<number> {
+    return this.jobRepository.count({
+      where: {
+        company: { id: companyId },
+      },
+    });
+  }
+
   private validateDates(startDate: Date | string, endDate: Date | string) {
     if (new Date(startDate) >= new Date(endDate)) {
       throw new BadRequestException('Ngày bắt đầu phải nhỏ hơn ngày kết thúc');
@@ -385,18 +393,18 @@ export class JobService {
 
       company: job.company
         ? {
-            id: job.company.id,
-            name: job.company.name,
-            address: job.company.address,
-            logoUrl: job.company.companyLogo?.logoUrl || '',
-          }
+          id: job.company.id,
+          name: job.company.name,
+          address: job.company.address,
+          logoUrl: job.company.companyLogo?.logoUrl || '',
+        }
         : null,
 
       skills: job.skills
         ? job.skills.map((skill) => ({
-            id: skill.id,
-            name: skill.name,
-          }))
+          id: skill.id,
+          name: skill.name,
+        }))
         : [],
     };
   }

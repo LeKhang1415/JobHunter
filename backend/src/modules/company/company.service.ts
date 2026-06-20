@@ -7,7 +7,7 @@ import {
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Company } from './entities/company.entity';
-import { Repository, ILike } from 'typeorm';
+import { Repository, ILike, QueryBuilder } from 'typeorm';
 import { User } from '../users/entities/user.entity';
 import { CompanyLogo } from './entities/company-logo.entity';
 import { UploadService } from '../upload/upload.service';
@@ -258,6 +258,41 @@ export class CompanyService {
     return company;
   }
 
+  async findAllPublicCompanies(
+    pagination: CompanyQueryDto,
+  ): Promise<Paginated<CompanyResponseDto>> {
+    const queryBuilder = this.companyRepository
+      .createQueryBuilder('company')
+      .leftJoinAndSelect('company.companyLogo', 'companyLogo')
+      .leftJoinAndSelect('company.owner', 'users')
+      .loadRelationCountAndMap(
+        'company.jobCount',
+        'company.jobs',
+        'job',
+        (qb) =>
+          qb
+            .where('job.active = :active', { active: true })
+            .andWhere('job.endDate >= :date', { date: new Date() }),
+      );
+
+    if (pagination.search) {
+      queryBuilder.andWhere(
+        '(company.name ILIKE :search OR company.address ILIKE :search)',
+        { search: `%${pagination.search}%` },
+      );
+    }
+
+    const paginated = await this.paginationProvider.paginateQueryBuilder(
+      pagination,
+      queryBuilder,
+    );
+
+    return {
+      data: paginated.data.map((company) => this.mapToResponseDto(company)),
+      meta: paginated.meta,
+    };
+  }
+
   async removeMemberFromCompany(
     recruiterRequestDto: RecruiterRequestDto,
     user: JwtPayload,
@@ -293,7 +328,9 @@ export class CompanyService {
     await this.userRepository.save(recruiter);
   }
 
-  private mapToResponseDto(company: Company): CompanyResponseDto {
+  private mapToResponseDto(
+    company: Company,
+  ): CompanyResponseDto {
     return {
       id: company.id,
       name: company.name,
@@ -306,32 +343,14 @@ export class CompanyService {
       updatedAt: company.updatedAt.toISOString(),
 
       owner: company.owner
-        ? { id: company.owner.id, name: company.owner.name, email: company.owner.email }
+        ? {
+          id: company.owner.id,
+          name: company.owner.name,
+          email: company.owner.email,
+        }
         : null,
-    };
-  }
 
-  async findAllPublicCompanies(
-    pagination: CompanyQueryDto,
-  ): Promise<Paginated<CompanyResponseDto>> {
-    const where = pagination.search
-      ? [
-        { name: ILike(`%${pagination.search}%`) },
-        { address: ILike(`%${pagination.search}%`) },
-      ]
-      : {};
-
-    const paginated = await this.paginationProvider.paginateQuery(
-      pagination,
-      this.companyRepository,
-      where,
-      {},
-      ['companyLogo', 'owner'],
-    );
-
-    return {
-      data: paginated.data.map((company) => this.mapToResponseDto(company)),
-      meta: paginated.meta,
+      jobCount: (company as any).jobCount || 0,
     };
   }
 }
