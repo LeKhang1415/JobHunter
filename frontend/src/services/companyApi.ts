@@ -48,7 +48,8 @@ export const removeMemberFromCompany = (data: MemberRecruiterRequestDto) => {
 export const getAllCompanies = (params: {
     page?: number;
     limit?: number;
-    searchName?: string;
+    name?: string;
+    address?: string;
 }) => {
     return axiosClient.get<
         ApiResponse<{
@@ -69,7 +70,8 @@ export const getAllCompanies = (params: {
 export const getAllPublicCompanies = (params: {
     page?: number;
     limit?: number;
-    searchName?: string;
+    name?: string;
+    address?: string;
 }) => {
     return axiosClient.get<
         ApiResponse<{
