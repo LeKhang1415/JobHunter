@@ -1,14 +1,20 @@
 import { Card, CardContent } from "@/components/ui/card";
 import { MapPin } from "lucide-react";
 import type { DefaultCompanyResponseDto } from "@/types/company.type";
+import { useNavigate } from "react-router-dom";
 
 interface CompanyCardProps {
     company: DefaultCompanyResponseDto;
 }
 
 export default function CompanyCard({ company }: CompanyCardProps) {
+    const navigate = useNavigate();
+
     return (
-        <Card className="hover:border-green-500/50 hover:shadow-md transition-all flex flex-col h-full group cursor-pointer">
+        <Card 
+            className="hover:border-green-500/50 hover:shadow-md transition-all flex flex-col h-full group cursor-pointer"
+            onClick={() => navigate(`/companies/${company.id}`)}
+        >
             <CardContent className="p-6 flex flex-col h-full">
                 <div className="flex gap-4 mb-4">
                     <div className="w-20 h-20 shrink-0 border rounded-lg bg-white overflow-hidden flex items-center justify-center shadow-sm">
