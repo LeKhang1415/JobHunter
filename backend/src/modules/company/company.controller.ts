@@ -116,7 +116,7 @@ export class CompanyController {
     return this.companyService.findAllPublicCompanies(pagination);
   }
 
-  @RequirePermissions('GET /company/:id')
+  @Public()
   @ResponseMessage('Lấy thông tin công ty thành công')
   @Get(':id')
   findCompanyById(@Param('id') id: string) {

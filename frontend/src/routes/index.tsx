@@ -5,7 +5,7 @@ import HomePage from "@/pages/user/home-page";
 import LoginPage from "@/pages/user/auth-page/LoginPage";
 import RegisterPage from "@/pages/user/auth-page/RegisterPage";
 import CompanyClientPage from "@/pages/user/company-page/CompanyClientPage";
-import CompanyDetailsClientPage from "@/pages/user/company-page/CompanyDetailsClientPage";
+import CompanyDetailsClientPage from "@/pages/user/company-detail-page/CompanyDetailsClientPage";
 import JobClientPage from "@/pages/user/job-page/JobClientPage";
 import JobDetailsClientPage from "@/pages/user/job-page/JobDetailsClientPage";
 import RecruiterPage from "@/pages/recruiter";

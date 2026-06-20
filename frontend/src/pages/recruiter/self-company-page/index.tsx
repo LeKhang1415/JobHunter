@@ -2,11 +2,13 @@ import LoadingSpinner from "@/components/custom/LoadingSpinner";
 import { Button } from "@/components/ui/button";
 import { getErrorMessage } from "@/features/slices/auth/authThunk";
 import CompanyFormDialog from "@/pages/admin/company-page/CompanyFormDialog";
-import CompanySection from "@/pages/commons/CompanySection";
+import CompanySection from "@/pages/commons/company-details-components/CompanySection";
 import { findSelfCompany, updateSelfCompany } from "@/services/companyApi";
 import type { DefaultCompanyResponseDto } from "@/types/company.type";
 import { NotebookPen } from "lucide-react";
 import { useEffect, useState } from "react";
+
+import CompanyHeader from "@/pages/commons/company-details-components/CompanyHeader";
 
 function CompanyManagerRecruiterPage() {
     const [isFormOpen, setIsFormOpen] = useState(false);
@@ -34,18 +36,7 @@ function CompanyManagerRecruiterPage() {
         fetchCompany();
     }, []);
 
-    const handleUpdateCompany = async (formData: FormData, id?: string) => {
-        if (!id) return;
-        try {
-            setIsLoading(true);
-            await updateSelfCompany(id, formData);
-            fetchCompany();
-        } catch (err) {
-            console.log(getErrorMessage(err, "Thao tác thất bại."));
-        } finally {
-            setIsLoading(false);
-        }
-    };
+
 
     if (isLoading) {
         return (
@@ -67,12 +58,13 @@ function CompanyManagerRecruiterPage() {
                 Chỉnh sửa thông tin công ty
             </Button>
 
+            <CompanyHeader company={company} isRecruiter={true} />
             <CompanySection company={company} isRecruiter={true} />
 
             <CompanyFormDialog
                 open={isFormOpen}
                 onClose={() => setIsFormOpen(false)}
-                onSubmit={handleUpdateCompany}
+                onSubmit={fetchCompany}
                 initialData={company}
             />
         </>

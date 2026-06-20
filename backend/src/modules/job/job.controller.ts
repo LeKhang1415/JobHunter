@@ -75,7 +75,7 @@ export class JobController {
     return this.jobService.findAll(query);
   }
 
-  @RequirePermissions('GET /jobs/company/:companyId')
+  @Public()
   @ResponseMessage('Lấy danh sách công việc theo công ty thành công')
   @Get('company/:companyId')
   findByCompanyId(@Param('companyId') companyId: string) {
