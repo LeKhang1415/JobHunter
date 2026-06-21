@@ -33,6 +33,7 @@ import {
     createJobForRecruiter,
     updateJobByIdForRecruiter,
     updateJobById,
+    createJob,
 } from "@/services/jobApi.ts";
 import { getAllCompanies } from "@/services/companyApi.ts";
 import { formatISOToYMD } from "@/utils/convertHelper.ts";
@@ -40,6 +41,8 @@ import { useAppSelector } from "@/features/hooks.ts";
 import type { DefaultJobRequestDto, SkillSummary } from "@/types/job.type";
 import RichTextEditor from "@/components/custom/RichText/RichTextEditor";
 import SkillSelection from "@/pages/commons/job-manager-page/SkillSelection";
+import CompanySelection from "@/pages/commons/job-manager-page/CompanySelection";
+import HasPermission from "@/components/custom/HasPermission";
 import { toast } from "sonner";
 
 const levels = [
@@ -94,15 +97,6 @@ export default function SharedJobUpsertPage({
     const [errors, setErrors] = useState<Record<string, string>>({});
 
     const primaryColor = role === "admin" ? "blue" : "purple";
-
-    // Admin can only edit, not create
-    useEffect(() => {
-        if (role === "admin" && !id) {
-            toast.error("Admin không có quyền tạo job. Chỉ recruiter mới tạo được.");
-            navigate("/admin/job-manager");
-            return;
-        }
-    }, [role, id, navigate]);
 
     // Fetch companies for Admin
     useEffect(() => {
@@ -164,6 +158,8 @@ export default function SharedJobUpsertPage({
         if (role === "admin") {
             if (isEdit && !permissions.includes("PATCH /jobs/:id"))
                 navigate(routePrefix);
+            else if (!isEdit && !permissions.includes("POST /jobs"))
+                navigate(routePrefix);
         } else {
             if (isEdit && !permissions.includes("PATCH /jobs/recruiter/:id"))
                 navigate(routePrefix);
@@ -172,10 +168,8 @@ export default function SharedJobUpsertPage({
         }
     }, [isEdit, navigate, permissions, role]);
 
-    const addSkill = (skill: SkillSummary) => {
-        const exists = selectedSkills.some((s) => s.id === skill.id);
-        if (exists) return;
-        setSelectedSkills([...selectedSkills, skill]);
+    const handleApplySkills = (skills: SkillSummary[]) => {
+        setSelectedSkills(skills);
     };
 
     const removeSkill = (skill: SkillSummary) => {
@@ -208,7 +202,7 @@ export default function SharedJobUpsertPage({
             newErrors.endDate = "Ngày kết thúc là bắt buộc";
         if (!formData.description.trim())
             newErrors.description = "Mô tả là bắt buộc";
-        
+
         if (role === "admin" && !selectedCompanyId) {
             newErrors.company = "Công ty là bắt buộc";
         }
@@ -243,8 +237,13 @@ export default function SharedJobUpsertPage({
 
             if (role === "admin") {
                 payload.companyId = selectedCompanyId;
-                await updateJobById(id as string, payload);
-                toast.success("Cập nhật công việc thành công");
+                if (isEdit) {
+                    await updateJobById(id as string, payload);
+                    toast.success("Cập nhật công việc thành công");
+                } else {
+                    await createJob(payload);
+                    toast.success("Tạo công việc mới thành công");
+                }
             } else {
                 if (isEdit) {
                     await updateJobByIdForRecruiter(id as string, payload);
@@ -530,60 +529,6 @@ export default function SharedJobUpsertPage({
                             </div>
                         </div>
 
-                        {/* Company Selection (Admin only) */}
-                        {role === "admin" && (
-                            <div className="space-y-2">
-                                <Label htmlFor="company">
-                                    Công ty{" "}
-                                    <span className="text-red-500">*</span>
-                                </Label>
-                                {isLoadingCompanies ? (
-                                    <div className="flex items-center gap-2 text-sm text-gray-500">
-                                        <Loader2 className="h-4 w-4 animate-spin" />
-                                        Đang tải danh sách công ty...
-                                    </div>
-                                ) : (
-                                    <Select
-                                        value={selectedCompanyId}
-                                        onValueChange={(value) => {
-                                            setSelectedCompanyId(value);
-                                            if (errors.company) {
-                                                setErrors((prev) => ({
-                                                    ...prev,
-                                                    company: "",
-                                                }));
-                                            }
-                                        }}
-                                    >
-                                        <SelectTrigger
-                                            className={
-                                                errors.company
-                                                    ? "border-red-500"
-                                                    : ""
-                                            }
-                                        >
-                                            <SelectValue placeholder="Chọn công ty..." />
-                                        </SelectTrigger>
-                                        <SelectContent>
-                                            {companies.map((company) => (
-                                                <SelectItem
-                                                    key={company.id}
-                                                    value={company.id}
-                                                >
-                                                    {company.name}
-                                                </SelectItem>
-                                            ))}
-                                        </SelectContent>
-                                    </Select>
-                                )}
-                                {errors.company && (
-                                    <span className="text-xs text-red-500">
-                                        {errors.company}
-                                    </span>
-                                )}
-                            </div>
-                        )}
-
                         {/* Description */}
                         <div className="space-y-2">
                             <Label htmlFor="description">
@@ -604,14 +549,30 @@ export default function SharedJobUpsertPage({
                             )}
                         </div>
 
-                        {/* Skills */}
+                        {/* Company and Skills */}
                         <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
+                            {/* Company Selection (Admin only) */}
+                            <HasPermission perm={["POST /jobs", "PATCH /jobs/:id"]}>
+                                <CompanySelection
+                                    selectedCompanyId={selectedCompanyId}
+                                    onCompanyChange={(id) => {
+                                        setSelectedCompanyId(id);
+                                        if (errors.company) {
+                                            setErrors((prev) => ({ ...prev, company: "" }));
+                                        }
+                                    }}
+                                    error={errors.company}
+                                />
+                            </HasPermission>
+
+                            {/* Skills */}
                             <SkillSelection
                                 selectedSkills={selectedSkills}
-                                onAddSkill={addSkill}
+                                onApplySkills={handleApplySkills}
                                 onRemoveSkill={removeSkill}
                             />
                         </div>
+
 
                         {/* Actions */}
                         <div className="flex justify-end gap-4">
@@ -633,8 +594,8 @@ export default function SharedJobUpsertPage({
                                 {isLoading
                                     ? "Đang xử lý..."
                                     : isEdit
-                                      ? "Cập nhật"
-                                      : "Thêm mới"}
+                                        ? "Cập nhật"
+                                        : "Thêm mới"}
                             </Button>
                         </div>
                     </form>

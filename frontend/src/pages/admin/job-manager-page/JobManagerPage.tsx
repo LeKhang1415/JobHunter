@@ -8,6 +8,9 @@ import type { Job, JobPaginationQuery } from "@/types/job.type";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
+import HasPermission from "@/components/custom/HasPermission";
+import { Button } from "@/components/ui/button";
+import { Plus } from "lucide-react";
 
 const JobManagerAdminPage = () => {
     const navigate = useNavigate();
@@ -155,6 +158,12 @@ const JobManagerAdminPage = () => {
                 <h2 className="text-lg font-semibold">
                     Danh sách công việc
                 </h2>
+                <HasPermission perm="POST /jobs">
+                    <Button onClick={() => navigate('/admin/job-manager/upsert')}>
+                        <Plus className="h-4 w-4 mr-2" />
+                        Thêm việc làm
+                    </Button>
+                </HasPermission>
             </div>
 
             <JobTable
