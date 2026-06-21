@@ -1,4 +1,4 @@
-import { Building2, MapPin, CalendarDays } from "lucide-react";
+import { CalendarDays } from "lucide-react";
 import { formatISO } from "@/utils/convertHelper.ts";
 import type { DefaultCompanyResponseDto } from "@/types/company.type";
 import RichTextPreview from "@/components/custom/RichText/RichTextPreview";

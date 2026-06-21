@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 import { getErrorMessage } from "@/features/slices/auth/authThunk";
 import CompanyFormDialog from "@/pages/admin/company-page/CompanyFormDialog";
 import CompanySection from "@/pages/commons/company-details-components/CompanySection";
-import { findSelfCompany, updateSelfCompany } from "@/services/companyApi";
+import { findSelfCompany } from "@/services/companyApi";
 import type { DefaultCompanyResponseDto } from "@/types/company.type";
 import { NotebookPen } from "lucide-react";
 import { useEffect, useState } from "react";

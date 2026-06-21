@@ -16,3 +16,8 @@ export function formatISOToYMD(isoString: string): string {
     const day = String(date.getDate()).padStart(2, "0");
     return `${year}-${month}-${day}`;
 }
+
+export const formatSalary = (val: number) => {
+    if (!val || val === 0) return "Thương lượng";
+    return new Intl.NumberFormat("vi-VN", { style: "currency", currency: "VND" }).format(val);
+};

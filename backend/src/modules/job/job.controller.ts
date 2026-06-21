@@ -76,6 +76,13 @@ export class JobController {
   }
 
   @Public()
+  @ResponseMessage('Lấy danh sách công việc cho client thành công')
+  @Get('client')
+  findAllForClient(@Query() query: JobPaginationQueryDto) {
+    return this.jobService.findAll(query);
+  }
+
+  @Public()
   @ResponseMessage('Lấy danh sách công việc theo công ty thành công')
   @Get('company/:companyId')
   findByCompanyId(@Param('companyId') companyId: string) {

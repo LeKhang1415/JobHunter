@@ -16,6 +16,15 @@ export const findAllJobs = (params: JobPaginationQuery) => {
     );
 };
 
+export const findAllJobsForClient = (params: JobPaginationQuery) => {
+    return axiosClient.get<ApiResponse<PaginatedResponse<JobResponseDto>>>(
+        "/jobs/client",
+        {
+            params,
+        },
+    );
+};
+
 export const findAllJobsForRecruiterCompany = (params: JobPaginationQuery) => {
     return axiosClient.get<ApiResponse<PaginatedResponse<JobResponseDto>>>(
         "/jobs/recruiter",
