@@ -110,7 +110,7 @@ export class JobService {
   ): Promise<JobResponseDto> {
     const job = await this.jobRepository.findOne({
       where: { id },
-      relations: ['company', 'skills'],
+      relations: ['company', 'company.companyLogo', 'skills'],
     });
 
     if (!job) throw new NotFoundException('Không tìm thấy công việc');
@@ -142,7 +142,7 @@ export class JobService {
   ): Promise<JobResponseDto> {
     const job = await this.jobRepository.findOne({
       where: { id },
-      relations: ['company', 'skills'],
+      relations: ['company', 'company.companyLogo', 'skills'],
     });
 
     if (!job) throw new NotFoundException('Không tìm thấy công việc');
@@ -202,7 +202,7 @@ export class JobService {
 
     const job = await this.jobRepository.findOne({
       where: { id },
-      relations: ['company', 'skills', 'resumes'],
+      relations: ['company', 'company.companyLogo', 'skills', 'resumes'],
     });
 
     if (!job) {
@@ -223,7 +223,7 @@ export class JobService {
   async findById(id: string): Promise<JobResponseDto> {
     const job = await this.jobRepository.findOne({
       where: { id },
-      relations: ['company', 'skills'],
+      relations: ['company', 'company.companyLogo', 'skills'],
     });
 
     if (!job) {
@@ -329,7 +329,7 @@ export class JobService {
       where: {
         company: { id: companyId },
       },
-      relations: ['company', 'skills'],
+      relations: ['company', 'company.companyLogo', 'skills'],
     });
 
     return jobs.map((job) => {

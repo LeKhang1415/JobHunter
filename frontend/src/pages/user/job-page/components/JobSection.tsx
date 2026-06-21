@@ -51,26 +51,24 @@ const JobSection = ({ job }: JobSectionProps) => {
         </div>
 
         {/* Company Info */}
-        <div className="flex items-center gap-4 rounded-lg bg-gray-50 p-4">
-          <div className="flex h-16 w-16 items-center justify-center overflow-hidden rounded-lg border bg-white">
-            {job.company?.logoUrl ? (
-              <img
-                src={job.company.logoUrl}
-                alt={job.company.name}
-                className="h-full w-full object-contain"
-              />
-            ) : (
-              <Building2 className="h-8 w-8 text-gray-600" />
-            )}
-          </div>
-          <div>
-            <h2 className="text-xl font-semibold text-gray-900">
-              {job.company?.name || "Tên công ty"}
-            </h2>
-            <p className="flex items-center text-gray-600">
-              <MapPin className="mr-1 h-4 w-4" />
-              {job.company?.address || "Địa chỉ"}
-            </p>
+        <div className="rounded-lg border bg-gray-50/50 p-6">
+          <div className="flex items-start gap-4">
+            <div className="flex h-16 w-16 shrink-0 items-center justify-center overflow-hidden rounded-lg border bg-white">
+              {job.company?.logoUrl ? (
+                <img src={job.company.logoUrl} alt={job.company.name} className="h-full w-full object-contain p-1" />
+              ) : (
+                <Building2 className="h-8 w-8 text-gray-400" />
+              )}
+            </div>
+            <div className="flex-1">
+              <h2 className="text-xl font-bold text-gray-900">
+                {job.company?.name}
+              </h2>
+              <div className="mt-2 flex items-center text-gray-600">
+                <MapPin className="mr-2 h-4 w-4" />
+                {job.location}
+              </div>
+            </div>
           </div>
         </div>
       </div>
@@ -163,7 +161,7 @@ const JobSection = ({ job }: JobSectionProps) => {
       {/* Main Apply Button at the bottom of content */}
       <div className="mt-8 pt-6 border-t">
         {isAuthenticated ? (
-          <Button className="w-full bg-[#e65c00] hover:bg-[#cc5200] text-white py-6 text-lg rounded-xl font-semibold shadow-md transition-all">
+          <Button className="w-full bg-green-600 hover:bg-green-700 text-white py-6 text-lg rounded-xl font-semibold shadow-md transition-all">
             Nộp CV Ứng Tuyển
           </Button>
         ) : (
@@ -176,7 +174,7 @@ const JobSection = ({ job }: JobSectionProps) => {
       {/* Floating Action Button (Fixed at bottom right) */}
       <div className="fixed bottom-8 right-8 z-50 hidden md:block">
         {isAuthenticated ? (
-          <Button className="bg-[#e65c00] hover:bg-[#cc5200] text-white rounded-full px-8 py-6 shadow-[0_8px_30px_rgb(0,0,0,0.2)] font-medium text-lg transition-transform hover:scale-105">
+          <Button className="bg-green-600 hover:bg-green-700 text-white rounded-full px-8 py-6 shadow-[0_8px_30px_rgb(0,0,0,0.2)] font-medium text-lg transition-transform hover:scale-105">
             <Send className="w-5 h-5 mr-2" />
             Nộp CV
           </Button>
