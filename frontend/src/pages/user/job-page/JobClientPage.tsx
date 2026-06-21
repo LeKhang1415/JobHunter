@@ -4,7 +4,7 @@ import { getErrorMessage } from "@/features/slices/auth/authThunk";
 import { findAllJobsForClient } from "@/services/jobApi";
 import type { JobResponseDto, JobPaginationQuery } from "@/types/job.type";
 import { JobClientSearchSection } from "./components/JobClientSearchSection";
-import JobCard from "@/pages/user/company-page/components/JobCard";
+import JobCard from "@/pages/user/job-page/components/JobCard";
 import Pagination from "@/components/custom/Pagination";
 import { Loader2 } from "lucide-react";
 
