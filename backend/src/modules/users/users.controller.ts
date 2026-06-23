@@ -11,7 +11,7 @@ import {
 import { UsersService } from './users.service';
 import { CreateUserDto } from './dtos/create-user.dto';
 import { UpdateUserDto } from './dtos/update-user.dto';
-import { PaginationQueryDto } from 'src/common/pagination/dtos/pagination-query.dto';
+import { UserQueryDto } from './dtos/user-query.dto';
 import { ResponseMessage } from 'src/common/decorators/response-message.decorator';
 import { RequirePermissions } from 'src/common/decorators/permission.decorator';
 
@@ -22,8 +22,8 @@ export class UsersController {
   @RequirePermissions('GET /users')
   @ResponseMessage('Lấy danh sách người dùng thành công')
   @Get()
-  findAll(@Query() pagination: PaginationQueryDto) {
-    return this.usersService.findAllUsers(pagination);
+  findAll(@Query() query: UserQueryDto) {
+    return this.usersService.findAllUsers(query);
   }
 
   @RequirePermissions('GET /users/:id')

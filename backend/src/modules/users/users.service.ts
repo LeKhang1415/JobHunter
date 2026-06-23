@@ -7,7 +7,7 @@ import {
 } from '@nestjs/common';
 import { User } from './entities/user.entity';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { FindOptionsWhere, ILike, Repository } from 'typeorm';
 import { Express } from 'express';
 import { UploadService } from '../upload/upload.service';
 import { HashingProvider } from '../auth/providers/hashing.provider';
@@ -20,7 +20,7 @@ import {
   RoleInformationDto,
   UserResponseDto,
 } from './dtos/user-response.dto';
-import { PaginationQueryDto } from 'src/common/pagination/dtos/pagination-query.dto';
+import { UserQueryDto } from './dtos/user-query.dto';
 import { Paginated } from 'src/common/pagination/interfaces/paginated.interface';
 import { PaginationProvider } from 'src/common/pagination/providers/pagination.provider';
 
@@ -145,12 +145,24 @@ export class UsersService {
   }
 
   async findAllUsers(
-    pagination: PaginationQueryDto,
+    query: UserQueryDto,
   ): Promise<Paginated<UserResponseDto>> {
+    const where: FindOptionsWhere<User> = {};
+
+    if (query.name) {
+      where.name = ILike(`%${query.name}%`);
+    }
+    if (query.email) {
+      where.email = ILike(`%${query.email}%`);
+    }
+    if (query.gender) {
+      where.gender = query.gender;
+    }
+
     const paginated = await this.paginationProvider.paginateQuery(
-      pagination,
+      query,
       this.usersRepository,
-      {},
+      where,
       {},
       ['role', 'company', 'company.companyLogo'],
     );
