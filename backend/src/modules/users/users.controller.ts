@@ -7,13 +7,17 @@ import {
   Patch,
   Post,
   Query,
+  UseInterceptors,
+  UploadedFile,
 } from '@nestjs/common';
+import { FileInterceptor } from '@nestjs/platform-express';
 import { UsersService } from './users.service';
 import { CreateUserDto } from './dtos/create-user.dto';
 import { UpdateUserDto } from './dtos/update-user.dto';
 import { UserQueryDto } from './dtos/user-query.dto';
 import { ResponseMessage } from 'src/common/decorators/response-message.decorator';
 import { RequirePermissions } from 'src/common/decorators/permission.decorator';
+import { CurrentUser } from 'src/common/decorators/user-infor.decorator';
 
 @Controller('users')
 export class UsersController {
@@ -53,4 +57,20 @@ export class UsersController {
   //   delete(@Param('id') id: string) {
   //     return this.usersService.deleteUser(id);
   //   }
+
+  @ResponseMessage('Cập nhật thông tin cá nhân thành công')
+  @Patch('me/update')
+  updateSelf(@CurrentUser() user: any, @Body() updateUserDto: UpdateUserDto) {
+    return this.usersService.updateUser(user.sub, updateUserDto);
+  }
+
+  @ResponseMessage('Cập nhật ảnh đại diện thành công')
+  @UseInterceptors(FileInterceptor('file'))
+  @Patch('me/avatar')
+  updateSelfAvatar(
+    @CurrentUser() user: any,
+    @UploadedFile() file: Express.Multer.File,
+  ) {
+    return this.usersService.updateSelfAvatar(user.email, file);
+  }
 }

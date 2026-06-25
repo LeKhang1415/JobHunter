@@ -65,7 +65,7 @@ export default function UserPage() {
                 </aside>
 
                 {/* Main Content */}
-                <div className="flex-1 lg:ml-6">
+                <div className="flex-1 lg:ml-20 mt-10">
                     <Outlet />
                 </div>
             </div>

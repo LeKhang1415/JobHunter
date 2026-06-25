@@ -35,3 +35,24 @@ export const changeUserRole = (userId: string, roleId: string) => {
         { roleId },
     );
 };
+
+export const updateSelfInfo = (data: Partial<UpdateUserRequestDto>) => {
+    return axiosClient.patch<ApiResponse<UserResponseDto>>(
+        "/users/me/update",
+        data,
+    );
+};
+
+export const updateSelfAvatar = (file: File) => {
+    const formData = new FormData();
+    formData.append("file", file);
+    return axiosClient.patch<ApiResponse<UserResponseDto>>(
+        "/users/me/avatar",
+        formData,
+        {
+            headers: {
+                "Content-Type": "multipart/form-data",
+            },
+        },
+    );
+};

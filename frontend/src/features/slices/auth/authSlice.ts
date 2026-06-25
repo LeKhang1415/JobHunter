@@ -34,6 +34,12 @@ const authSlice = createSlice({
             state.accessToken = null;
             state.isAuthenticated = false;
         },
+
+        updateUserLocally(state, action: PayloadAction<Partial<UserResponseDto>>) {
+            if (state.user) {
+                state.user = { ...state.user, ...action.payload };
+            }
+        },
     },
 
     // ================= EXTRA REDUCERS =================
@@ -90,5 +96,5 @@ const authSlice = createSlice({
     },
 });
 
-export const { updateTokenManually, clearAuth } = authSlice.actions;
+export const { updateTokenManually, clearAuth, updateUserLocally } = authSlice.actions;
 export default authSlice.reducer;
