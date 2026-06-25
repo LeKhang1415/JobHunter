@@ -22,10 +22,9 @@ export default function UserPage() {
                 {/* Sidebar */}
                 <aside className="hidden lg:block w-64 h-fit bg-white rounded-lg shadow-sm p-4">
                     {/* Header */}
-                    <div className="flex items-center justify-between border-b border-gray-200 p-6">
-                        <h1 className="text-xl font-semibold text-gray-800">
-                            Xin chào{" "}
-                            <span className="text-blue-600">{user.name}</span>
+                    <div className="flex items-center justify-between p-6 pb-2">
+                        <h1 className="text-lg font-medium text-gray-700">
+                            Xin chào <span className="text-green-600 font-bold uppercase">{user.name}</span>!
                         </h1>
                     </div>
                     {/* Navigation */}
@@ -50,10 +49,9 @@ export default function UserPage() {
                                         <NavLink
                                             to={item.href}
                                             className={({ isActive }) =>
-                                                `flex items-center rounded-lg px-3 py-2 text-sm font-medium transition-colors duration-200 ${
-                                                    isActive
-                                                        ? "bg-green-100 text-green-700"
-                                                        : "text-gray-700 hover:bg-gray-100 hover:text-gray-900"
+                                                `flex items-center rounded-lg px-3 py-2.5 text-sm font-medium transition-colors duration-200 ${isActive
+                                                    ? "bg-green-100 text-green-700"
+                                                    : "text-gray-600 hover:bg-gray-50 hover:text-gray-900"
                                                 } `
                                             }
                                         >
