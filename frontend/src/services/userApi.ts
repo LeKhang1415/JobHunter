@@ -49,10 +49,5 @@ export const updateSelfAvatar = (file: File) => {
     return axiosClient.patch<ApiResponse<UserResponseDto>>(
         "/users/me/avatar",
         formData,
-        {
-            headers: {
-                "Content-Type": "multipart/form-data",
-            },
-        },
     );
 };
