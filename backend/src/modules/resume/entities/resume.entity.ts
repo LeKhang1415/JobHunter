@@ -1,8 +1,7 @@
-// resume.entity.ts
 import { ResumeStatus } from 'src/common/enums/resume-status.enum';
 import { Job } from 'src/modules/job/entities/job.entity';
 import { User } from 'src/modules/users/entities/user.entity';
-import { Entity, PrimaryGeneratedColumn, Column, ManyToOne } from 'typeorm';
+import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, CreateDateColumn, UpdateDateColumn } from 'typeorm';
 
 @Entity('resumes')
 export class Resume {
@@ -26,4 +25,10 @@ export class Resume {
 
   @ManyToOne(() => Job, (job) => job.resumes)
   job: Job;
+
+  @CreateDateColumn()
+  createAt: Date
+
+  @UpdateDateColumn()
+  updateAt: Date
 }
