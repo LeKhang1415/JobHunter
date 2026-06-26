@@ -3,6 +3,7 @@ import type { ApiResponse } from "@/types/apiResponse.type";
 import type { PaginatedResponse } from "@/types/pagination.type";
 import type {
     GetAllUsersParams,
+    UpdateSelfPasswordRequestDto,
     UpdateUserRequestDto,
     UserResponseDto,
 } from "@/types/user.type";
@@ -49,5 +50,12 @@ export const updateSelfAvatar = (file: File) => {
     return axiosClient.patch<ApiResponse<UserResponseDto>>(
         "/users/me/avatar",
         formData,
+    );
+};
+
+export const updateSelfPassword = (data: UpdateSelfPasswordRequestDto) => {
+    return axiosClient.patch<ApiResponse<UserResponseDto>>(
+        "/users/me/password",
+        data,
     );
 };

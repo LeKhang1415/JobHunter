@@ -6,6 +6,7 @@ import { updateUserLocally } from "@/features/slices/auth/authSlice";
 import { toast } from "sonner";
 import UpdateProfileModal from "./components/UpdateProfileModal";
 import UpdateAvatarModal from "./components/UpdateAvatarModal";
+import UpdatePasswordModal from "./components/UpdatePasswordModal";
 
 export default function ProfilePage() {
     const { user } = useAppSelector((state) => state.auth);
@@ -13,6 +14,7 @@ export default function ProfilePage() {
 
     const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
     const [isAvatarModalOpen, setIsAvatarModalOpen] = useState(false);
+    const [isPasswordModalOpen, setIsPasswordModalOpen] = useState(false);
     const [isSubmitting, setIsSubmitting] = useState(false);
 
     const handleUpdateInfo = async (formData: any) => {
@@ -98,7 +100,10 @@ export default function ProfilePage() {
                         <Edit size={18} />
                         Cập nhật thông tin
                     </button>
-                    <button className="w-full bg-white border border-gray-300 text-gray-700 hover:bg-gray-50 hover:text-green-600 hover:border-green-600 py-2.5 rounded-lg flex items-center justify-center gap-2 transition-colors font-medium text-sm">
+                    <button 
+                        onClick={() => setIsPasswordModalOpen(true)}
+                        className="w-full bg-white border border-gray-300 text-gray-700 hover:bg-gray-50 hover:text-green-600 hover:border-green-600 py-2.5 rounded-lg flex items-center justify-center gap-2 transition-colors font-medium text-sm"
+                    >
                         <Lock size={18} />
                         Đổi mật khẩu
                     </button>
@@ -216,6 +221,11 @@ export default function ProfilePage() {
                 currentAvatarUrl={user.userImgUrl || null}
                 onSave={handleUpdateAvatar}
                 isSubmitting={isSubmitting}
+            />
+
+            <UpdatePasswordModal
+                isOpen={isPasswordModalOpen}
+                onClose={() => setIsPasswordModalOpen(false)}
             />
         </div>
     );

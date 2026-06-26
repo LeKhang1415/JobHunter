@@ -61,3 +61,9 @@ export interface UpdateUserRequestDto {
 export interface MemberRecruiterRequestDto {
     email: string;
 }
+
+export interface UpdateSelfPasswordRequestDto {
+    oldPassword: string;
+    newPassword: string;
+}
+
