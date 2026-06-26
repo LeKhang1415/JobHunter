@@ -11,6 +11,7 @@ export interface UserRegisterRequestDto {
     email: string;
     password: string;
     gender: Gender;
+    dob?: string;
     address?: string;
     recruiter: boolean;
 }
@@ -23,6 +24,7 @@ export interface UserResponseDto {
     email: string;
     address: string;
     gender: string;
+    dob?: string;
     userImgUrl: string;
     permissions: string[];
     company?: CompanyInformationDto | null;
@@ -52,6 +54,7 @@ export interface UpdateUserRequestDto {
     email?: string;
     address?: string;
     gender?: string;
+    dob?: string;
     roleId?: string;
 }
 

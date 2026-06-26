@@ -21,7 +21,7 @@ import { CurrentUser } from 'src/common/decorators/user-infor.decorator';
 
 @Controller('users')
 export class UsersController {
-  constructor(private readonly usersService: UsersService) {}
+  constructor(private readonly usersService: UsersService) { }
 
   @RequirePermissions('GET /users')
   @ResponseMessage('Lấy danh sách người dùng thành công')

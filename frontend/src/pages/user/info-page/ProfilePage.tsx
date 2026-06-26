@@ -21,7 +21,8 @@ export default function ProfilePage() {
             const res = await updateSelfInfo({
                 name: formData.name,
                 address: formData.address,
-                gender: formData.gender
+                gender: formData.gender,
+                dob: formData.dob || undefined
             });
             if (res.data.result) {
                 dispatch(updateUserLocally(res.data.result));
@@ -59,6 +60,12 @@ export default function ProfilePage() {
         if (!dateString) return "Chưa cập nhật";
         const date = new Date(dateString);
         return `lúc ${date.getHours().toString().padStart(2, '0')}:${date.getMinutes().toString().padStart(2, '0')} ${date.getDate()} tháng ${date.getMonth() + 1}, ${date.getFullYear()}`;
+    };
+
+    const formatDob = (dateString?: Date | string) => {
+        if (!dateString) return "Chưa cập nhật";
+        const date = new Date(dateString);
+        return `${date.getDate()} tháng ${date.getMonth() + 1}, ${date.getFullYear()}`;
     };
 
     return (
@@ -124,7 +131,7 @@ export default function ProfilePage() {
                                     <Calendar size={16} />
                                     <span className="text-sm font-medium">Ngày sinh</span>
                                 </div>
-                                <p className="font-medium text-gray-800 ml-6">25 tháng 2, 2003</p>
+                                <p className="font-medium text-gray-800 ml-6">{formatDob(user.dob)}</p>
                             </div>
 
                             {/* Địa chỉ */}

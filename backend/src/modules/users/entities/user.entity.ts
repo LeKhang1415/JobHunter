@@ -34,6 +34,9 @@ export class User {
   @Column({ nullable: true })
   userImgUrl: string;
 
+  @Column({ type: 'date', nullable: true })
+  dob: string | Date;
+
   @Column({ nullable: false })
   @Exclude()
   password: string;

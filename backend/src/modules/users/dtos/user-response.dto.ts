@@ -17,6 +17,7 @@ export class UserResponseDto {
   email: string;
   address: string;
   gender: string;
+  dob?: Date | string;
   userImgUrl: string;
   company?: CompanyInformationDto | null;
   role?: RoleInformationDto | null;

@@ -16,7 +16,7 @@ export default function UpdateProfileModal({ isOpen, onClose, user, onSave, isSu
         name: "",
         address: "",
         gender: "male",
-        dob: "2004-07-18"
+        dob: ""
     });
 
     useEffect(() => {
@@ -25,7 +25,7 @@ export default function UpdateProfileModal({ isOpen, onClose, user, onSave, isSu
                 name: user.name || "",
                 address: user.address || "",
                 gender: user.gender || "male",
-                dob: "2004-07-18"
+                dob: user.dob ? (typeof user.dob === 'string' && user.dob.length === 10 ? user.dob : new Date(user.dob).toISOString().split('T')[0]) : ""
             });
         }
     }, [user, isOpen]);
@@ -35,6 +35,7 @@ export default function UpdateProfileModal({ isOpen, onClose, user, onSave, isSu
             name: formData.name,
             address: formData.address,
             gender: formData.gender,
+            dob: formData.dob || undefined,
         });
     };
 

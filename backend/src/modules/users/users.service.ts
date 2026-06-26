@@ -59,6 +59,7 @@ export class UsersService {
       password: hashedPassword,
       address: createUserDto.address,
       gender: createUserDto.gender,
+      dob: createUserDto.dob,
     });
 
     if (createUserDto.roleId) {
@@ -97,6 +98,10 @@ export class UsersService {
 
     if (updateUserDto.gender !== undefined) {
       user.gender = updateUserDto.gender;
+    }
+
+    if (updateUserDto.dob !== undefined) {
+      user.dob = updateUserDto.dob;
     }
 
     if (updateUserDto.roleId) {
@@ -245,6 +250,7 @@ export class UsersService {
       email: user.email,
       address: user.address,
       gender: user.gender,
+      dob: user.dob,
       userImgUrl: user.userImgUrl,
       company,
       role,
