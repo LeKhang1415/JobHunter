@@ -23,6 +23,8 @@ import {
 import { UserQueryDto } from './dtos/user-query.dto';
 import { Paginated } from 'src/common/pagination/interfaces/paginated.interface';
 import { PaginationProvider } from 'src/common/pagination/providers/pagination.provider';
+import { JwtPayload } from '../auth/interfaces/jwt-payload.interface';
+import { SelfUserUpdatePasswordDto } from './dtos/self-user-update-password.dto';
 
 @Injectable()
 export class UsersService {
@@ -149,9 +151,7 @@ export class UsersService {
     });
   }
 
-  async findAllUsers(
-    query: UserQueryDto,
-  ): Promise<Paginated<UserResponseDto>> {
+  async findAllUsers(query: UserQueryDto): Promise<Paginated<UserResponseDto>> {
     const where: FindOptionsWhere<User> = {};
 
     if (query.name) {
@@ -196,6 +196,34 @@ export class UsersService {
     const updatedUser = await this.usersRepository.save(user);
 
     return this.mapToResponseDto(updatedUser);
+  }
+
+  async updateSelfUserPassword(
+    user: JwtPayload,
+    selfUserUpdatePasswordRequestDto: SelfUserUpdatePasswordDto,
+  ) {
+    const userEntity = await this.findByEmail(user.email);
+
+    if (!userEntity) {
+      throw new NotFoundException('Không tìm thấy người dùng');
+    }
+
+    const isOldPasswordValid = await this.hashingProvider.comparePassword(
+      selfUserUpdatePasswordRequestDto.oldPassword,
+      userEntity.password,
+    );
+
+    if (!isOldPasswordValid) {
+      throw new BadRequestException('Mật khẩu cũ không chính xác');
+    }
+
+    userEntity.password = await this.hashingProvider.hashPassword(
+      selfUserUpdatePasswordRequestDto.newPassword,
+    );
+
+    const savedUser = await this.usersRepository.save(userEntity);
+
+    return this.mapToResponseDto(savedUser);
   }
 
   async detachUsersFromRole(roleId: string): Promise<void> {

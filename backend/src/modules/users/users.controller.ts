@@ -19,10 +19,11 @@ import { ResponseMessage } from 'src/common/decorators/response-message.decorato
 import { RequirePermissions } from 'src/common/decorators/permission.decorator';
 import { CurrentUser } from 'src/common/decorators/user-infor.decorator';
 import { JwtPayload } from '../auth/interfaces/jwt-payload.interface';
+import { SelfUserUpdatePasswordDto } from './dtos/self-user-update-password.dto';
 
 @Controller('users')
 export class UsersController {
-  constructor(private readonly usersService: UsersService) { }
+  constructor(private readonly usersService: UsersService) {}
 
   @RequirePermissions('GET /users')
   @ResponseMessage('Lấy danh sách người dùng thành công')
@@ -61,7 +62,10 @@ export class UsersController {
 
   @ResponseMessage('Cập nhật thông tin cá nhân thành công')
   @Patch('me/update')
-  updateSelf(@CurrentUser() user: JwtPayload, @Body() updateUserDto: UpdateUserDto) {
+  updateSelf(
+    @CurrentUser() user: JwtPayload,
+    @Body() updateUserDto: UpdateUserDto,
+  ) {
     return this.usersService.updateUser(user.sub, updateUserDto);
   }
 
@@ -73,5 +77,17 @@ export class UsersController {
     @UploadedFile() file: Express.Multer.File,
   ) {
     return this.usersService.updateSelfAvatar(user.email, file);
+  }
+
+  @ResponseMessage('Cập nhật mật khẩu thành công')
+  @Patch('me/password')
+  updateSelfUserPassword(
+    @CurrentUser() user: JwtPayload,
+    @Body() selfUserUpdatePasswordRequestDto: SelfUserUpdatePasswordDto,
+  ) {
+    return this.usersService.updateSelfUserPassword(
+      user,
+      selfUserUpdatePasswordRequestDto,
+    );
   }
 }
