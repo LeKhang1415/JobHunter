@@ -7,7 +7,7 @@ import {
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Company } from './entities/company.entity';
-import { Repository, ILike, QueryBuilder } from 'typeorm';
+import { Repository, ILike, QueryBuilder, FindOptionsWhere } from 'typeorm';
 import { User } from '../users/entities/user.entity';
 import { CompanyLogo } from './entities/company-logo.entity';
 import { UploadService } from '../upload/upload.service';
@@ -153,7 +153,7 @@ export class CompanyService {
   async findAllCompanies(
     pagination: CompanyQueryDto,
   ): Promise<Paginated<CompanyResponseDto>> {
-    const where: any = {};
+    const where: FindOptionsWhere<Company> = {};
     if (pagination.name) {
       where.name = ILike(`%${pagination.name}%`);
     }

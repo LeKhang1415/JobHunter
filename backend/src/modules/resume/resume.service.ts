@@ -8,12 +8,16 @@ import { JobService } from '../job/job.service';
 import { InjectRepository } from '@nestjs/typeorm';
 import { PaginationProvider } from 'src/common/pagination/providers/pagination.provider';
 import { Resume } from './entities/resume.entity';
-import { Repository } from 'typeorm';
+import { FindOptionsWhere, Repository } from 'typeorm';
 import { JwtPayload } from '../auth/interfaces/jwt-payload.interface';
-import { CreateResumeDto } from './dtos/create-permission.dto';
+import { CreateResumeDto } from './dtos/create-resume.dto';
 import { ResumeResponseDto } from './dtos/resume-response.dto';
 
 import { UploadService } from '../upload/upload.service';
+import { UpdateResumeDto } from './dtos/update-resume.dto';
+import { PaginationQueryDto } from 'src/common/pagination/dtos/pagination-query.dto';
+import { Paginated } from 'src/common/pagination/interfaces/paginated.interface';
+import { ResumeStatus } from 'src/common/enums/resume-status.enum';
 
 @Injectable()
 export class ResumeService {
@@ -26,7 +30,7 @@ export class ResumeService {
         private readonly resumeRepository: Repository<Resume>,
     ) { }
 
-    async createResume(user: JwtPayload, createResumeDto: CreateResumeDto, file: Express.Multer.File) {
+    async createResume(user: JwtPayload, createResumeDto: CreateResumeDto, file: Express.Multer.File): Promise<ResumeResponseDto> {
         if (!file) {
             throw new BadRequestException('Vui lòng chọn file CV');
         }
@@ -68,6 +72,92 @@ export class ResumeService {
             updateAt: savedResume.updateAt,
         };
     }
+
+    async findMyResumes(user: JwtPayload, pagination: PaginationQueryDto): Promise<Paginated<ResumeResponseDto>> {
+        const userEntity = await this.usersService.findById(user.sub);
+        if (!userEntity) {
+            throw new NotFoundException('Người dùng không tồn tại');
+        }
+
+        const where: FindOptionsWhere<Resume> = { user: { id: userEntity.id } }
+
+        const paginated = await this.paginationProvider.paginateQuery(
+            pagination,
+            this.resumeRepository,
+            where,
+            {},
+            ['job', 'job.company'],
+        );
+
+        return {
+            data: paginated.data.map((resume) => this.mapToResponseDto(resume)),
+            meta: paginated.meta,
+        };
+
+    }
+
+    async updateResume(resumeId: string, user: JwtPayload, updateResumeDto: UpdateResumeDto, file?: Express.Multer.File): Promise<ResumeResponseDto> {
+        const userEntity = await this.usersService.findById(user.sub);
+
+        if (!userEntity) {
+            throw new NotFoundException('Người dùng không tồn tại');
+        }
+
+        const existedResume = await this.resumeRepository.findOne({
+            where: { id: resumeId, user: { id: userEntity.id } }
+        })
+
+        if (!existedResume) {
+            throw new NotFoundException('Không tìm thấy hồ sơ');
+        }
+
+        if (existedResume.status !== ResumeStatus.PENDING) {
+            throw new BadRequestException('Hồ sơ đã được nhà tuyển dụng xem xét, không thể chỉnh sửa')
+        }
+
+        if (file) {
+            await this.uploadService.deletePDF(existedResume.publicId);
+
+            const uploadResult = await this.uploadService.uploadPDF(file, 'resumes');
+
+            existedResume.publicId = uploadResult.public_id;
+
+            existedResume.fileUrl = uploadResult.secure_url;
+        }
+
+        if (updateResumeDto.email) {
+            existedResume.email = updateResumeDto.email
+        }
+
+        const savedResume = await this.resumeRepository.save(existedResume);
+
+        return this.mapToResponseDto(savedResume)
+    }
+
+    async removeResume(resumeId: string, user: JwtPayload): Promise<void> {
+        const userEntity = await this.usersService.findById(user.sub);
+
+        if (!userEntity) {
+            throw new NotFoundException('Người dùng không tồn tại');
+        }
+
+        const existedResume = await this.resumeRepository.findOne({
+            where: { id: resumeId, user: { id: userEntity.id } }
+        })
+
+        if (!existedResume) {
+            throw new NotFoundException('Không tìm thấy hồ sơ');
+        }
+
+        if (existedResume.status !== ResumeStatus.PENDING) {
+            throw new BadRequestException('Hồ sơ đã được nhà tuyển dụng xem xét, không thể chỉnh sửa')
+        }
+
+        await this.uploadService.deletePDF(existedResume.publicId);
+
+        await this.resumeRepository.remove(existedResume);
+    }
+
 
     private async existsByUserIdAndJobId(userId: string, jobId: string) {
         const resume = await this.resumeRepository.findOne({

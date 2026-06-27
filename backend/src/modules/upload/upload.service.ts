@@ -54,10 +54,10 @@ export class UploadService {
     });
   }
 
-  deletePDF(publicId: string, folder: string): Promise<void> {
+  deletePDF(publicId: string): Promise<void> {
     return new Promise((resolve, reject) => {
       cloudinary.uploader.destroy(
-        `${folder}/${publicId}`,
+        publicId,
         { resource_type: 'raw' },
         (error) => {
           if (error) return reject(error);
