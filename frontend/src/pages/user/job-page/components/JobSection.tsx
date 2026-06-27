@@ -16,6 +16,8 @@ import { levelColors, levelLabels } from "@/utils/tagColorMapper.ts";
 import { useAppSelector } from "@/features/hooks";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button.tsx";
+import { useState } from "react";
+import ApplyJobModal from "./ApplyJobModal";
 
 type JobSectionProps = {
   job: JobResponseDto;
@@ -24,6 +26,7 @@ type JobSectionProps = {
 const JobSection = ({ job }: JobSectionProps) => {
   const { isAuthenticated } = useAppSelector((state) => state.auth);
   const navigate = useNavigate();
+  const [isApplyModalOpen, setIsApplyModalOpen] = useState(false);
 
   return (
     <div className="space-y-6">
@@ -161,7 +164,10 @@ const JobSection = ({ job }: JobSectionProps) => {
       {/* Main Apply Button at the bottom of content */}
       <div className="mt-8 pt-6 border-t">
         {isAuthenticated ? (
-          <Button className="w-full bg-green-600 hover:bg-green-700 text-white py-6 text-lg rounded-xl font-semibold shadow-md transition-all">
+          <Button 
+            onClick={() => setIsApplyModalOpen(true)}
+            className="w-full bg-green-600 hover:bg-green-700 text-white py-6 text-lg rounded-xl font-semibold shadow-md transition-all"
+          >
             Nộp CV Ứng Tuyển
           </Button>
         ) : (
@@ -174,7 +180,10 @@ const JobSection = ({ job }: JobSectionProps) => {
       {/* Floating Action Button (Fixed at bottom right) */}
       <div className="fixed bottom-8 right-8 z-50 hidden md:block">
         {isAuthenticated ? (
-          <Button className="bg-green-600 hover:bg-green-700 text-white rounded-full px-8 py-6 shadow-[0_8px_30px_rgb(0,0,0,0.2)] font-medium text-lg transition-transform hover:scale-105">
+          <Button 
+            onClick={() => setIsApplyModalOpen(true)}
+            className="bg-green-600 hover:bg-green-700 text-white rounded-full px-8 py-6 shadow-[0_8px_30px_rgb(0,0,0,0.2)] font-medium text-lg transition-transform hover:scale-105"
+          >
             <Send className="w-5 h-5 mr-2" />
             Nộp CV
           </Button>
@@ -184,6 +193,13 @@ const JobSection = ({ job }: JobSectionProps) => {
           </Button>
         )}
       </div>
+
+      <ApplyJobModal 
+        isOpen={isApplyModalOpen}
+        onClose={() => setIsApplyModalOpen(false)}
+        jobId={job.id}
+        jobName={job.name}
+      />
     </div>
   );
 };

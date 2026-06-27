@@ -59,7 +59,14 @@ export class ResumeService {
 
         const savedResume = await this.resumeRepository.save(resume);
 
-        return this.mapToResponseDto(savedResume)
+        return {
+            id: savedResume.id,
+            email: savedResume.email,
+            job: jobDto.name,
+            company: jobDto.company?.name || '',
+            createAt: savedResume.createAt,
+            updateAt: savedResume.updateAt,
+        };
     }
 
     private async existsByUserIdAndJobId(userId: string, jobId: string) {
@@ -79,8 +86,8 @@ export class ResumeService {
         return {
             id: resume.id,
             email: resume.email,
-            job: resume.job.name,
-            company: resume.job.company.name,
+            job: resume.job?.name || '',
+            company: resume.job?.company?.name || '',
             createAt: resume.createAt,
             updateAt: resume.updateAt,
         };

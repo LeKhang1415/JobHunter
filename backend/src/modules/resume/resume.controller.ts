@@ -14,7 +14,7 @@ import { ResponseMessage } from 'src/common/decorators/response-message.decorato
 
 @Controller('resume')
 export class ResumeController {
-  constructor(private readonly resumeService: ResumeService) {}
+  constructor(private readonly resumeService: ResumeService) { }
 
   @ResponseMessage('Nộp hồ sơ thành công')
   @UseInterceptors(FileInterceptor('file'))
