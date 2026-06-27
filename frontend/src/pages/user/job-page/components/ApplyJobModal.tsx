@@ -62,9 +62,8 @@ export default function ApplyJobModal({ isOpen, onClose, jobId, jobName }: Apply
                 { email, jobId, status: "PENDING" },
                 file
             );
-
+            toast.success(res.data.message || "Nộp CV thành công!");
             if (res.data) {
-                toast.success("Nộp CV thành công!");
                 handleClose();
             }
         } catch (error: any) {
