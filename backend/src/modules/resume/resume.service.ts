@@ -97,23 +97,7 @@ export class ResumeService {
     }
 
     async updateResume(resumeId: string, user: JwtPayload, updateResumeDto: UpdateResumeDto, file?: Express.Multer.File): Promise<ResumeResponseDto> {
-        const userEntity = await this.usersService.findById(user.sub);
-
-        if (!userEntity) {
-            throw new NotFoundException('Người dùng không tồn tại');
-        }
-
-        const existedResume = await this.resumeRepository.findOne({
-            where: { id: resumeId, user: { id: userEntity.id } }
-        })
-
-        if (!existedResume) {
-            throw new NotFoundException('Không tìm thấy hồ sơ');
-        }
-
-        if (existedResume.status !== ResumeStatus.PENDING) {
-            throw new BadRequestException('Hồ sơ đã được nhà tuyển dụng xem xét, không thể chỉnh sửa')
-        }
+        const existedResume = await this.checkResumeOwnershipAndStatus(resumeId, user.sub);
 
         if (file) {
             await this.uploadService.deletePDF(existedResume.publicId);
@@ -135,23 +119,7 @@ export class ResumeService {
     }
 
     async removeResume(resumeId: string, user: JwtPayload): Promise<void> {
-        const userEntity = await this.usersService.findById(user.sub);
-
-        if (!userEntity) {
-            throw new NotFoundException('Người dùng không tồn tại');
-        }
-
-        const existedResume = await this.resumeRepository.findOne({
-            where: { id: resumeId, user: { id: userEntity.id } }
-        })
-
-        if (!existedResume) {
-            throw new NotFoundException('Không tìm thấy hồ sơ');
-        }
-
-        if (existedResume.status !== ResumeStatus.PENDING) {
-            throw new BadRequestException('Hồ sơ đã được nhà tuyển dụng xem xét, không thể chỉnh sửa')
-        }
+        const existedResume = await this.checkResumeOwnershipAndStatus(resumeId, user.sub);
 
         await this.uploadService.deletePDF(existedResume.publicId);
 
@@ -171,6 +139,28 @@ export class ResumeService {
         }
         return false;
     }
+
+    private async checkResumeOwnershipAndStatus(resumeId: string, userId: string): Promise<Resume> {
+        const userEntity = await this.usersService.findById(userId);
+        if (!userEntity) {
+            throw new NotFoundException('Người dùng không tồn tại');
+        }
+
+        const existedResume = await this.resumeRepository.findOne({
+            where: { id: resumeId, user: { id: userEntity.id } }
+        });
+
+        if (!existedResume) {
+            throw new NotFoundException('Không tìm thấy hồ sơ');
+        }
+
+        if (existedResume.status !== ResumeStatus.PENDING) {
+            throw new BadRequestException('Hồ sơ đã được nhà tuyển dụng xem xét, không thể thay đổi');
+        }
+
+        return existedResume;
+    }
+
 
     private mapToResponseDto(resume: Resume): ResumeResponseDto {
         return {
