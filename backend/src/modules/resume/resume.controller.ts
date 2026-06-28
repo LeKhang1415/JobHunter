@@ -18,6 +18,7 @@ import { CreateResumeDto } from './dtos/create-resume.dto';
 import { ResponseMessage } from 'src/common/decorators/response-message.decorator';
 import { UpdateResumeDto } from './dtos/update-resume.dto';
 import { PaginationQueryDto } from 'src/common/pagination/dtos/pagination-query.dto';
+import { ChangeResumeStatusDto } from './dtos/change-resume-status.dto';
 
 @Controller('resume')
 export class ResumeController {
@@ -37,7 +38,7 @@ export class ResumeController {
   @Get('me')
   @ResponseMessage('Lấy lịch sử ứng tuyển thành công')
   findMyResumes(@CurrentUser() user: JwtPayload, @Query() pagination: PaginationQueryDto) {
-    return this.resumeService.findMyResumes(user, pagination);
+    return this.resumeService.findSelfResumes(user, pagination);
   }
 
   @Patch(':id')
@@ -49,13 +50,46 @@ export class ResumeController {
     @Body() updateResumeDto: UpdateResumeDto,
     @UploadedFile() file: Express.Multer.File,
   ) {
-    return this.resumeService.updateResume(id, user, updateResumeDto, file);
+    return this.resumeService.updateSeflResume(id, user, updateResumeDto, file);
   }
 
   @Delete(':id')
   @ResponseMessage('Rút hồ sơ thành công')
   remove(@Param('id') id: string, @CurrentUser() user: JwtPayload) {
-    return this.resumeService.removeResume(id, user);
+    return this.resumeService.removeSelfResume(id, user);
   }
 
+  @Get('recruiter/company')
+  @ResponseMessage('Lấy danh sách hồ sơ của công ty thành công')
+  findAllResumesForRecruiterCompany(
+    @CurrentUser() user: JwtPayload,
+    @Query() pagination: PaginationQueryDto
+  ) {
+    return this.resumeService.findAllResumesForRecruiterCompany(user, pagination);
+  }
+
+  @Patch('recruiter/:id')
+  @ResponseMessage('Cập nhật trạng thái hồ sơ thành công')
+  updateStatusResumeForRecruiter(
+    @Param('id') id: string,
+    @CurrentUser() user: JwtPayload,
+    @Body() changeResumeStatusDto: ChangeResumeStatusDto
+  ) {
+    return this.resumeService.updateStatusResumeForRecruiter(id, user, changeResumeStatusDto);
+  }
+
+  @Get('admin/all')
+  @ResponseMessage('Lấy tất cả hồ sơ (Admin) thành công')
+  findAllResumes(@Query() pagination: PaginationQueryDto) {
+    return this.resumeService.findAllResumes(pagination);
+  }
+
+  @Patch('admin/:id')
+  @ResponseMessage('Cập nhật trạng thái hồ sơ (Admin) thành công')
+  updateStatusResumeAdmin(
+    @Param('id') id: string,
+    @Body() changeResumeStatusDto: ChangeResumeStatusDto
+  ) {
+    return this.resumeService.updateStatusResume(id, changeResumeStatusDto);
+  }
 }

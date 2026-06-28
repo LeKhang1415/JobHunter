@@ -1,5 +1,6 @@
 import {
     BadRequestException,
+    ForbiddenException,
     Injectable,
     NotFoundException,
 } from '@nestjs/common';
@@ -19,6 +20,7 @@ import { UpdateResumeDto } from './dtos/update-resume.dto';
 import { PaginationQueryDto } from 'src/common/pagination/dtos/pagination-query.dto';
 import { Paginated } from 'src/common/pagination/interfaces/paginated.interface';
 import { ResumeStatus } from 'src/common/enums/resume-status.enum';
+import { ChangeResumeStatusDto } from './dtos/change-resume-status.dto';
 
 @Injectable()
 export class ResumeService {
@@ -67,30 +69,7 @@ export class ResumeService {
         return this.mapToResponseDto(resume)
     }
 
-    async findMyResumes(user: JwtPayload, pagination: PaginationQueryDto): Promise<Paginated<ResumeDisplayDto>> {
-        const userEntity = await this.usersService.findById(user.sub);
-        if (!userEntity) {
-            throw new NotFoundException('Người dùng không tồn tại');
-        }
-
-        const where: FindOptionsWhere<Resume> = { user: { id: userEntity.id } }
-
-        const paginated = await this.paginationProvider.paginateQuery(
-            pagination,
-            this.resumeRepository,
-            where,
-            {},
-            ['job', 'job.company', 'job.skills', 'job.company.companyLogo'],
-        );
-
-        return {
-            data: paginated.data.map((resume) => this.mapToDisplayDto(resume)),
-            meta: paginated.meta,
-        };
-
-    }
-
-    async updateResume(resumeId: string, user: JwtPayload, updateResumeDto: UpdateResumeDto, file?: Express.Multer.File): Promise<ResumeResponseDto> {
+    async updateSeflResume(resumeId: string, user: JwtPayload, updateResumeDto: UpdateResumeDto, file?: Express.Multer.File): Promise<ResumeResponseDto> {
         const existedResume = await this.checkResumeOwnershipAndStatus(resumeId, user.sub);
 
         if (file) {
@@ -112,7 +91,7 @@ export class ResumeService {
         return this.mapToResponseDto(savedResume)
     }
 
-    async removeResume(resumeId: string, user: JwtPayload): Promise<void> {
+    async removeSelfResume(resumeId: string, user: JwtPayload): Promise<void> {
         const existedResume = await this.checkResumeOwnershipAndStatus(resumeId, user.sub);
 
         await this.uploadService.deletePDF(existedResume.publicId);
@@ -120,6 +99,125 @@ export class ResumeService {
         await this.resumeRepository.remove(existedResume);
     }
 
+    async findSelfResumes(user: JwtPayload, pagination: PaginationQueryDto): Promise<Paginated<ResumeDisplayDto>> {
+        const userEntity = await this.usersService.findById(user.sub);
+        if (!userEntity) {
+            throw new NotFoundException('Người dùng không tồn tại');
+        }
+
+        const where: FindOptionsWhere<Resume> = { user: { id: userEntity.id } }
+
+        const paginated = await this.paginationProvider.paginateQuery(
+            pagination,
+            this.resumeRepository,
+            where,
+            { updateAt: 'DESC' },
+            ['job', 'job.company', 'job.skills', 'job.company.companyLogo'],
+        );
+
+        return {
+            data: paginated.data.map((resume) => this.mapToDisplayDto(resume)),
+            meta: paginated.meta,
+        };
+
+    }
+
+    async findAllResumesForRecruiterCompany(user: JwtPayload, pagination: PaginationQueryDto): Promise<Paginated<ResumeDisplayDto>> {
+        const userEntity = await this.usersService.findById(user.sub);
+
+        if (!userEntity) {
+            throw new NotFoundException('Người dùng không tồn tại');
+        }
+
+        if (!userEntity.company) {
+            throw new BadRequestException("Tài khoản của bạn chưa được liên kết với công ty nào");
+        }
+
+        const where: FindOptionsWhere<Resume> = { job: { company: { id: userEntity.company.id } } };
+
+        const paginated = await this.paginationProvider.paginateQuery(
+            pagination,
+            this.resumeRepository,
+            where,
+            { createAt: "DESC" },
+            ['job', 'job.company', 'job.skills', 'job.company.companyLogo'],
+        );
+
+        return {
+            data: paginated.data.map((resume) => this.mapToDisplayDto(resume)),
+            meta: paginated.meta,
+        };
+    }
+
+    async updateStatusResumeForRecruiter(resumeId: string, user: JwtPayload, changeResumeStatusDto: ChangeResumeStatusDto) {
+        const userEntity = await this.usersService.findById(user.sub);
+
+        if (!userEntity) {
+            throw new NotFoundException('Người dùng không tồn tại');
+        }
+
+        if (!userEntity.company) {
+            throw new BadRequestException("Tài khoản của bạn chưa được liên kết với công ty nào");
+        }
+
+        const existedResume = await this.resumeRepository.findOne({
+            where: { id: resumeId },
+            relations: ['job', 'job.company']
+        })
+
+        if (!existedResume) {
+            throw new NotFoundException("Hồ sơ không tồn tại")
+        }
+
+        if (existedResume.job.company.id !== userEntity.company.id) {
+            throw new ForbiddenException("Bạn không có quyền cập nhật trạng thái CV của công ty khác")
+        }
+
+        if (changeResumeStatusDto.status) {
+            existedResume.status = changeResumeStatusDto.status
+        }
+
+        const savedResume = await this.resumeRepository.save(existedResume)
+
+        return this.mapToResponseDto(savedResume)
+    }
+
+
+    async findAllResumes(pagination: PaginationQueryDto): Promise<Paginated<ResumeDisplayDto>> {
+        const where: FindOptionsWhere<Resume> = {};
+
+        const paginated = await this.paginationProvider.paginateQuery(
+            pagination,
+            this.resumeRepository,
+            where,
+            { createAt: "DESC" },
+            ['job', 'job.company', 'job.skills', 'job.company.companyLogo'],
+        );
+
+        return {
+            data: paginated.data.map((resume) => this.mapToDisplayDto(resume)),
+            meta: paginated.meta,
+        };
+    }
+
+    async updateStatusResume(resumeId: string, changeResumeStatusDto: ChangeResumeStatusDto) {
+        const existedResume = await this.resumeRepository.findOne({
+            where: { id: resumeId },
+            relations: ['job', 'job.company']
+        })
+
+        if (!existedResume) {
+            throw new NotFoundException("Hồ sơ không tồn tại")
+        }
+
+        if (changeResumeStatusDto.status) {
+            existedResume.status = changeResumeStatusDto.status
+        }
+
+        const savedResume = await this.resumeRepository.save(existedResume)
+
+        return this.mapToResponseDto(savedResume)
+    }
 
     private async existsByUserIdAndJobId(userId: string, jobId: string) {
         const resume = await this.resumeRepository.findOne({
