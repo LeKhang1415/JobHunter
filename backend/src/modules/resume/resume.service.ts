@@ -12,6 +12,7 @@ import { FindOptionsWhere, Repository } from 'typeorm';
 import { JwtPayload } from '../auth/interfaces/jwt-payload.interface';
 import { CreateResumeDto } from './dtos/create-resume.dto';
 import { ResumeResponseDto } from './dtos/resume-response.dto';
+import { ResumeDisplayDto } from './dtos/resume-display.dto';
 
 import { UploadService } from '../upload/upload.service';
 import { UpdateResumeDto } from './dtos/update-resume.dto';
@@ -63,17 +64,10 @@ export class ResumeService {
 
         const savedResume = await this.resumeRepository.save(resume);
 
-        return {
-            id: savedResume.id,
-            email: savedResume.email,
-            job: jobDto.name,
-            company: jobDto.company?.name || '',
-            createAt: savedResume.createAt,
-            updateAt: savedResume.updateAt,
-        };
+        return this.mapToResponseDto(resume)
     }
 
-    async findMyResumes(user: JwtPayload, pagination: PaginationQueryDto): Promise<Paginated<ResumeResponseDto>> {
+    async findMyResumes(user: JwtPayload, pagination: PaginationQueryDto): Promise<Paginated<ResumeDisplayDto>> {
         const userEntity = await this.usersService.findById(user.sub);
         if (!userEntity) {
             throw new NotFoundException('Người dùng không tồn tại');
@@ -86,11 +80,11 @@ export class ResumeService {
             this.resumeRepository,
             where,
             {},
-            ['job', 'job.company'],
+            ['job', 'job.company', 'job.skills', 'job.company.companyLogo'],
         );
 
         return {
-            data: paginated.data.map((resume) => this.mapToResponseDto(resume)),
+            data: paginated.data.map((resume) => this.mapToDisplayDto(resume)),
             meta: paginated.meta,
         };
 
@@ -147,7 +141,8 @@ export class ResumeService {
         }
 
         const existedResume = await this.resumeRepository.findOne({
-            where: { id: resumeId, user: { id: userEntity.id } }
+            where: { id: resumeId, user: { id: userEntity.id } },
+            relations: ['job', 'job.company', 'job.skills', 'job.company.companyLogo']
         });
 
         if (!existedResume) {
@@ -166,8 +161,32 @@ export class ResumeService {
         return {
             id: resume.id,
             email: resume.email,
-            job: resume.job?.name || '',
-            company: resume.job?.company?.name || '',
+            fileUrl: resume.fileUrl,
+            status: resume.status,
+            jobName: resume.job?.name || '',
+            companyName: resume.job?.company?.name || '',
+            createAt: resume.createAt,
+            updateAt: resume.updateAt,
+        };
+    }
+
+    private mapToDisplayDto(resume: Resume): ResumeDisplayDto {
+        return {
+            id: resume.id,
+            email: resume.email,
+            fileUrl: resume.fileUrl,
+            status: resume.status,
+            job: {
+                id: resume.job?.id || '',
+                name: resume.job?.name || '',
+                location: resume.job?.location || '',
+                skills: resume.job?.skills?.map(skill => skill.name) || [],
+            },
+            company: {
+                id: resume.job?.company?.id || '',
+                name: resume.job?.company?.name || '',
+                logo: resume.job?.company?.companyLogo?.logoUrl || '',
+            },
             createAt: resume.createAt,
             updateAt: resume.updateAt,
         };

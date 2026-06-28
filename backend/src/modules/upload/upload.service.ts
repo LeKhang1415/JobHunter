@@ -32,7 +32,7 @@ export class UploadService {
       const uploadStream = cloudinary.uploader.upload_stream(
         {
           folder,
-          resource_type: 'raw',
+          resource_type: 'image',
           format: 'pdf',
         },
         (error, result) => {
@@ -58,7 +58,7 @@ export class UploadService {
     return new Promise((resolve, reject) => {
       cloudinary.uploader.destroy(
         publicId,
-        { resource_type: 'raw' },
+        { resource_type: 'image' },
         (error) => {
           if (error) return reject(error);
           resolve();

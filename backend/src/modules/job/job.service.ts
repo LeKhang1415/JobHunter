@@ -372,7 +372,7 @@ export class JobService {
     if (job.resumes?.length) {
       for (const resume of job.resumes) {
         if (resume.publicId) {
-          await this.uploadService.deletePDF(resume.publicId, 'resumes');
+          await this.uploadService.deletePDF(resume.publicId);
         }
       }
     }

@@ -1,5 +1,5 @@
 import React, { useState, useRef } from "react";
-import { X, Upload, FileText, CheckCircle2, Eye } from "lucide-react";
+import { X, Upload, FileText, CheckCircle2 } from "lucide-react";
 import { toast } from "sonner";
 import { useAppSelector } from "@/features/hooks";
 import { applyJob } from "@/services/resumeApi";

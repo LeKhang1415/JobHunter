@@ -34,17 +34,9 @@ const RecruiterPage = () => {
         fetchCompany();
     }, []);
 
-    const handleCreateCompany = async (formData: FormData) => {
-        try {
-            setIsLoading(true);
-            await saveSelfCompany(formData);
-            fetchCompany();
-        } catch (err) {
-            console.log(getErrorMessage(err, "Thao tác thất bại."));
-        } finally {
-            setIsLoading(false);
-        }
-    };
+    useEffect(() => {
+        fetchCompany();
+    }, []);
 
     if (isChecking) {
         return (
@@ -98,7 +90,7 @@ const RecruiterPage = () => {
                 <CompanyFormDialog
                     open={isFormOpen}
                     onClose={() => setIsFormOpen(false)}
-                    onSubmit={handleCreateCompany}
+                    onSubmit={fetchCompany}
                 />
             </>
         );
