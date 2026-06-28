@@ -1,8 +1,9 @@
-import { useState, useRef } from "react";
-import { X, Upload, FileText, Loader2 } from "lucide-react";
+import React, { useState, useRef } from "react";
+import { X, Upload, FileText, CheckCircle2 } from "lucide-react";
 import { updateResume } from "@/services/resumeApi";
 import type { ResumeDisplayDto } from "@/types/resume.type";
 import { toast } from "sonner";
+import { Button } from "@/components/ui/button";
 
 interface UpdateResumeModalProps {
     isOpen: boolean;
@@ -14,19 +15,19 @@ interface UpdateResumeModalProps {
 export default function UpdateResumeModal({ isOpen, onClose, resume, onSuccess }: UpdateResumeModalProps) {
     const [email, setEmail] = useState(resume.email);
     const [file, setFile] = useState<File | null>(null);
-    const [loading, setLoading] = useState(false);
+    const [isSubmitting, setIsSubmitting] = useState(false);
     const fileInputRef = useRef<HTMLInputElement>(null);
 
     if (!isOpen) return null;
 
     const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        if (e.target.files && e.target.files[0]) {
-            const selectedFile = e.target.files[0];
+        const selectedFile = e.target.files?.[0];
+        if (selectedFile) {
             if (selectedFile.type !== "application/pdf") {
-                toast.error("Vui lòng tải lên file PDF");
+                toast.error("Vui lòng chỉ tải lên file PDF");
                 return;
             }
-            if (selectedFile.size > 5 * 1024 * 1024) {
+            if (selectedFile.size > 5 * 1024 * 1024) { // 5MB limit
                 toast.error("Kích thước file không được vượt quá 5MB");
                 return;
             }
@@ -34,124 +35,163 @@ export default function UpdateResumeModal({ isOpen, onClose, resume, onSuccess }
         }
     };
 
+    const handleRemoveFile = () => {
+        setFile(null);
+        if (fileInputRef.current) {
+            fileInputRef.current.value = "";
+        }
+    };
+
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         
         if (!email.trim()) {
-            toast.error("Vui lòng nhập email");
+            toast.error("Vui lòng nhập email liên hệ");
             return;
         }
 
         try {
-            setLoading(true);
+            setIsSubmitting(true);
             await updateResume(resume.id, email, file || undefined);
-            toast.success("Cập nhật hồ sơ thành công");
+            toast.success("Cập nhật hồ sơ thành công!");
             onSuccess();
-            onClose();
+            handleClose();
         } catch (error: any) {
-            toast.error(error.response?.data?.message || "Cập nhật hồ sơ thất bại");
+            console.error("Lỗi cập nhật CV:", error.response?.data || error.message);
+            const errorMessage = Array.isArray(error.response?.data?.message)
+                ? error.response.data.message[0]
+                : error.response?.data?.message;
+            toast.error(errorMessage || "Cập nhật hồ sơ thất bại, vui lòng thử lại sau.");
         } finally {
-            setLoading(false);
+            setIsSubmitting(false);
         }
     };
 
+    const handleClose = () => {
+        setFile(null);
+        setEmail(resume.email);
+        if (fileInputRef.current) {
+            fileInputRef.current.value = "";
+        }
+        onClose();
+    };
+
     return (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
-            <div className="bg-white rounded-2xl shadow-xl w-full max-w-md overflow-hidden">
-                <div className="flex items-center justify-between p-5 border-b border-gray-100">
-                    <h2 className="text-xl font-bold text-gray-900">Cập nhật hồ sơ</h2>
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm px-4 py-6">
+            <div className={`bg-white w-full ${file ? 'max-w-5xl h-full max-h-[90vh] flex flex-col' : 'max-w-lg'} rounded-2xl shadow-xl overflow-hidden animate-in fade-in zoom-in duration-200`}>
+                <div className="flex items-center justify-between p-6 border-b border-gray-100">
+                    <div>
+                        <h2 className="text-xl font-bold text-gray-800">Cập nhật hồ sơ</h2>
+                        <p className="text-sm text-gray-500 mt-1 truncate max-w-sm" title={resume.job.name}>
+                            Vị trí: <span className="font-semibold text-green-600">{resume.job.name}</span>
+                        </p>
+                    </div>
                     <button
-                        onClick={onClose}
-                        className="p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-50 rounded-full transition-colors"
-                        disabled={loading}
+                        onClick={handleClose}
+                        className="p-2 hover:bg-gray-100 rounded-full transition-colors self-start"
                     >
-                        <X className="w-5 h-5" />
+                        <X size={20} className="text-gray-500" />
                     </button>
                 </div>
 
-                <form onSubmit={handleSubmit} className="p-6">
-                    <div className="space-y-5">
-                        <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-2">
-                                Email liên hệ <span className="text-red-500">*</span>
-                            </label>
-                            <input
-                                type="email"
-                                value={email}
-                                onChange={(e) => setEmail(e.target.value)}
-                                className="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500/20 focus:border-green-500 transition-colors"
-                                placeholder="Nhập email của bạn"
-                                required
-                            />
-                        </div>
+                <div className={`p-6 space-y-6 ${file ? 'overflow-y-auto flex-1' : ''}`}>
+                    {/* Email Input */}
+                    <div className="space-y-2">
+                        <label className="text-sm font-medium text-gray-700">Email liên hệ <span className="text-red-500">*</span></label>
+                        <input
+                            type="email"
+                            value={email}
+                            onChange={(e) => setEmail(e.target.value)}
+                            placeholder="Nhập email để nhà tuyển dụng liên hệ"
+                            className="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all"
+                            required
+                        />
+                    </div>
 
-                        <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-2">
-                                Thay đổi CV (PDF)
-                            </label>
-                            
-                            <input
-                                type="file"
-                                ref={fileInputRef}
-                                onChange={handleFileChange}
-                                accept=".pdf"
-                                className="hidden"
-                            />
-
-                            {!file ? (
-                                <button
-                                    type="button"
-                                    onClick={() => fileInputRef.current?.click()}
-                                    className="w-full flex flex-col items-center justify-center gap-2 py-8 px-4 border-2 border-dashed border-gray-200 rounded-xl bg-gray-50 hover:bg-gray-100 hover:border-gray-300 transition-colors"
-                                >
-                                    <Upload className="w-8 h-8 text-gray-400" />
-                                    <div className="text-center">
-                                        <p className="text-sm font-medium text-gray-700">Nhấn để tải lên CV mới</p>
-                                        <p className="text-xs text-gray-500 mt-1">Định dạng PDF, tối đa 5MB</p>
+                    {/* CV Upload */}
+                    <div className="space-y-2">
+                        <label className="text-sm font-medium text-gray-700">Thay đổi CV (PDF)</label>
+                        
+                        {!file ? (
+                            <div 
+                                onClick={() => fileInputRef.current?.click()}
+                                className="border-2 border-dashed border-gray-300 rounded-xl p-8 flex flex-col items-center justify-center gap-3 cursor-pointer hover:bg-green-50 hover:border-green-400 transition-all group"
+                            >
+                                <div className="p-4 bg-green-100 rounded-full group-hover:scale-110 transition-transform">
+                                    <Upload className="text-green-600 w-6 h-6" />
+                                </div>
+                                <div className="text-center">
+                                    <p className="text-sm font-medium text-gray-700 group-hover:text-green-700">Nhấn để tải lên file CV mới</p>
+                                    <p className="text-xs text-gray-500 mt-1">Hỗ trợ định dạng PDF (Tối đa 5MB)</p>
+                                    <p className="text-xs text-gray-400 mt-1 italic">Để trống nếu bạn chỉ muốn cập nhật email</p>
+                                </div>
+                            </div>
+                        ) : (
+                            <div className="bg-gray-50 border border-gray-200 rounded-xl p-4 flex items-center justify-between">
+                                <div className="flex items-center gap-3 overflow-hidden">
+                                    <div className="p-2 bg-red-100 rounded-lg shrink-0">
+                                        <FileText className="text-red-600 w-6 h-6" />
                                     </div>
-                                </button>
-                            ) : (
-                                <div className="flex items-center justify-between p-4 bg-green-50 border border-green-100 rounded-xl">
-                                    <div className="flex items-center gap-3">
-                                        <div className="p-2 bg-green-100 rounded-lg">
-                                            <FileText className="w-5 h-5 text-green-600" />
-                                        </div>
-                                        <div>
-                                            <p className="text-sm font-medium text-green-800 line-clamp-1">{file.name}</p>
-                                            <p className="text-xs text-green-600">{(file.size / 1024 / 1024).toFixed(2)} MB</p>
-                                        </div>
+                                    <div className="overflow-hidden">
+                                        <p className="text-sm font-medium text-gray-800 truncate">{file.name}</p>
+                                        <p className="text-xs text-gray-500">{(file.size / 1024 / 1024).toFixed(2)} MB</p>
                                     </div>
+                                </div>
+                                <div className="flex items-center gap-2 shrink-0">
+                                    <CheckCircle2 className="text-green-500 w-5 h-5 hidden sm:block" />
                                     <button
                                         type="button"
-                                        onClick={() => setFile(null)}
-                                        className="p-2 text-green-600 hover:bg-green-100 rounded-full transition-colors"
+                                        onClick={handleRemoveFile}
+                                        className="p-1.5 hover:bg-red-100 bg-red-50 rounded-full transition-colors text-red-600"
+                                        title="Xóa file"
                                     >
-                                        <X className="w-4 h-4" />
+                                        <X size={16} />
                                     </button>
                                 </div>
-                            )}
-                        </div>
+                            </div>
+                        )}
+                        
+                        {/* PDF Preview Inline */}
+                        {file && (
+                            <div className="mt-6 w-full h-[600px] border border-gray-200 rounded-xl overflow-hidden bg-gray-50">
+                                <iframe
+                                    src={URL.createObjectURL(file)}
+                                    title="PDF Preview"
+                                    className="w-full h-full"
+                                />
+                            </div>
+                        )}
+                        
+                        <input
+                            type="file"
+                            ref={fileInputRef}
+                            className="hidden"
+                            accept="application/pdf"
+                            onChange={handleFileChange}
+                        />
                     </div>
+                </div>
 
-                    <div className="mt-8 flex items-center justify-end gap-3">
-                        <button
-                            type="button"
-                            onClick={onClose}
-                            className="px-5 py-2.5 text-sm font-medium text-gray-700 bg-gray-50 hover:bg-gray-100 rounded-lg transition-colors"
-                            disabled={loading}
-                        >
-                            Hủy bỏ
-                        </button>
-                        <button
-                            type="submit"
-                            disabled={loading}
-                            className="px-5 py-2.5 text-sm font-medium text-white bg-green-600 hover:bg-green-700 rounded-lg transition-colors flex items-center gap-2 disabled:opacity-70"
-                        >
-                            {loading && <Loader2 className="w-4 h-4 animate-spin" />}
-                            Lưu thay đổi
-                        </button>
-                    </div>
-                </form>
+                {/* Fixed Footer for Wide Modal */}
+                <div className="flex items-center justify-end gap-3 p-6 border-t border-gray-100 bg-gray-50/50 mt-auto">
+                    <Button
+                        type="button"
+                        variant="outline"
+                        onClick={handleClose}
+                        disabled={isSubmitting}
+                        className="px-6 border-gray-200 bg-white"
+                    >
+                        Hủy
+                    </Button>
+                    <Button
+                        type="button"
+                        onClick={handleSubmit}
+                        disabled={isSubmitting}
+                        className="px-6 bg-green-600 hover:bg-green-700 text-white flex items-center gap-2 disabled:opacity-50"
+                    >
+                        {isSubmitting ? "Đang xử lý..." : "Lưu thay đổi"}
+                    </Button>
+                </div>
             </div>
         </div>
     );

@@ -6,6 +6,7 @@ import { Link } from "react-router-dom";
 import { toast } from "sonner";
 import UpdateResumeModal from "./components/UpdateResumeModal";
 import PdfViewer from "../../../components/custom/PdfViewer";
+import WithdrawConfirmModal from "./components/WithdrawConfirmModal";
 
 export default function JobApplicationsPage() {
     const [resumes, setResumes] = useState<ResumeDisplayDto[]>([]);
@@ -14,6 +15,9 @@ export default function JobApplicationsPage() {
 
     const [isUpdateModalOpen, setIsUpdateModalOpen] = useState(false);
     const [selectedResume, setSelectedResume] = useState<ResumeDisplayDto | null>(null);
+
+    const [withdrawId, setWithdrawId] = useState<string | null>(null);
+    const [isWithdrawing, setIsWithdrawing] = useState(false);
 
     const fetchResumes = async () => {
         try {
@@ -35,14 +39,19 @@ export default function JobApplicationsPage() {
         fetchResumes();
     }, []);
 
-    const handleWithdraw = async (id: string) => {
-        if (!confirm("Bạn có chắc chắn muốn rút hồ sơ này không?")) return;
+    const handleWithdraw = async () => {
+        if (!withdrawId) return;
+        
         try {
-            await removeResume(id);
+            setIsWithdrawing(true);
+            await removeResume(withdrawId);
             toast.success("Rút hồ sơ thành công");
             fetchResumes();
+            setWithdrawId(null);
         } catch (error: any) {
             toast.error(error.response?.data?.message || "Rút hồ sơ thất bại");
+        } finally {
+            setIsWithdrawing(false);
         }
     };
 
@@ -150,7 +159,7 @@ export default function JobApplicationsPage() {
                                         Cập nhật hồ sơ
                                     </button>
                                     <button
-                                        onClick={() => handleWithdraw(resume.id)}
+                                        onClick={() => setWithdrawId(resume.id)}
                                         className="px-4 py-2 bg-red-600 text-white rounded-lg text-sm font-medium hover:bg-red-700 transition-colors"
                                     >
                                         Rút hồ sơ
@@ -187,6 +196,13 @@ export default function JobApplicationsPage() {
                     onSuccess={fetchResumes}
                 />
             )}
+
+            <WithdrawConfirmModal
+                isOpen={!!withdrawId}
+                onClose={() => !isWithdrawing && setWithdrawId(null)}
+                onConfirm={handleWithdraw}
+                isLoading={isWithdrawing}
+            />
         </div>
     );
 }
