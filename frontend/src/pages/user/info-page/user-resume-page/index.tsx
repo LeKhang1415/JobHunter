@@ -5,7 +5,7 @@ import { MapPin, Settings2, FileText } from "lucide-react";
 import { Link } from "react-router-dom";
 import { toast } from "sonner";
 import UpdateResumeModal from "./components/UpdateResumeModal";
-import PdfViewer from "../../../components/custom/PdfViewer";
+import PdfViewer from "../../../../components/custom/PdfViewer";
 import WithdrawConfirmModal from "./components/WithdrawConfirmModal";
 
 export default function JobApplicationsPage() {
@@ -41,7 +41,7 @@ export default function JobApplicationsPage() {
 
     const handleWithdraw = async () => {
         if (!withdrawId) return;
-        
+
         try {
             setIsWithdrawing(true);
             await removeResume(withdrawId);
@@ -79,7 +79,7 @@ export default function JobApplicationsPage() {
                             <div className="flex items-start gap-4 mb-4">
                                 <div className="w-14 h-14 bg-gray-50 border border-gray-100 rounded-lg flex items-center justify-center p-2 flex-shrink-0">
                                     <img
-                                        src={resume.company.logo || "https://res.cloudinary.com/dwyx97zla/image/upload/v1714552467/default-company-logo_f0tihy.png"}
+                                        src={resume.company.logo}
                                         alt={resume.company.name}
                                         className="w-full h-full object-contain"
                                     />

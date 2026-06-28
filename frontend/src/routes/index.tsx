@@ -9,10 +9,10 @@ import CompanyDetailsClientPage from "@/pages/user/company-detail-page/CompanyDe
 import JobClientPage from "@/pages/user/job-page/JobClientPage";
 import JobDetailsClientPage from "@/pages/user/job-page/JobDetailsClientPage";
 import UserPage from "@/pages/user/info-page";
-import ProfilePage from "@/pages/user/info-page/ProfilePage";
-import NotificationsPage from "@/pages/user/info-page/NotificationsPage";
-import JobApplicationsPage from "@/pages/user/info-page/JobApplicationsPage";
-import SecurityPage from "@/pages/user/info-page/SecurityPage";
+import ProfilePage from "@/pages/user/info-page/user-info-page";
+import NotificationsPage from "@/pages/user/info-page/user-subscriber-page";
+import JobApplicationsPage from "@/pages/user/info-page/user-resume-page";
+import SecurityPage from "@/pages/user/info-page/user-session-page";
 import RecruiterPage from "@/pages/recruiter";
 import CompanyManagerRecruiterPage from "@/pages/recruiter/self-company-page";
 import MemberManagePage from "@/pages/recruiter/member-page";

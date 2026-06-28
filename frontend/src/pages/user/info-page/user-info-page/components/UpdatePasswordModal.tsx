@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { X, Lock, EyeOff, Loader2, Eye } from "lucide-react";
+import { X, Lock, EyeOff, Eye } from "lucide-react";
 import { updateSelfPassword } from "@/services/userApi";
 import { toast } from "sonner";
 
