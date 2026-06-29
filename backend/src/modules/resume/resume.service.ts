@@ -66,7 +66,7 @@ export class ResumeService {
 
         const savedResume = await this.resumeRepository.save(resume);
 
-        return this.mapToResponseDto(resume)
+        return this.mapToResponseDto(savedResume)
     }
 
     async updateSeflResume(resumeId: string, user: JwtPayload, updateResumeDto: UpdateResumeDto, file?: Express.Multer.File): Promise<ResumeResponseDto> {

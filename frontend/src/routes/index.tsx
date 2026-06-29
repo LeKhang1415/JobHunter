@@ -29,7 +29,7 @@ import UserUpsertPage from "@/pages/admin/user-manager-page/UserUpsertPage";
 import CompanyManagerPage from "@/pages/admin/company-page";
 import JobManagerAdminPage from "@/pages/admin/job-manager-page";
 import JobUpsertAdminPage from "@/pages/admin/job-manager-page/job-upsert-page";
-
+import ResumeManageRecruiterPage from "@/pages/recruiter/resume-page";
 export const router = createBrowserRouter([
     {
         path: "/",
@@ -65,6 +65,7 @@ export const router = createBrowserRouter([
             { path: "company", element: <CompanyManagerRecruiterPage /> },
             { path: "members", element: <MemberManagePage /> },
             { path: "skills", element: <SkillManagerRecruiterPage /> },
+            { path: "resumes", element: <ResumeManageRecruiterPage /> },
             { path: "jobs", element: <JobManageRecruiterPage /> },
             { path: "jobs/upsert", element: <JobUpsertRecruiterPage /> },
         ],

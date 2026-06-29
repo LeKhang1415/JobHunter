@@ -1,6 +1,7 @@
 import axiosClient from "@/lib/axiosClient";
 import type { ApiResponse } from "@/types/apiResponse.type";
-import type { CreateResumeRequestDto, ResumeResponseDto } from "@/types/resume.type";
+import type { PaginatedResponse, PaginationQuery } from "@/types/pagination.type";
+import type { CreateResumeRequestDto, ResumeResponseDto, ResumeDisplayDto } from "@/types/resume.type";
 
 export const applyJob = (data: CreateResumeRequestDto, file: File) => {
     const formData = new FormData();
@@ -34,3 +35,16 @@ export const removeResume = (id: string) => {
     return axiosClient.delete<ApiResponse<any>>(`/resume/${id}`);
 };
 
+export const findAllResumesForRecruiterCompany = (params: PaginationQuery) => {
+    return axiosClient.get<ApiResponse<PaginatedResponse<ResumeDisplayDto>>>(
+        "/resume/recruiter/company",
+        { params }
+    );
+};
+
+export const updateStatusResumeForRecruiter = (id: string, status: string) => {
+    return axiosClient.patch<ApiResponse<ResumeResponseDto>>(
+        `/resume/recruiter/${id}`,
+        { status }
+    );
+};
