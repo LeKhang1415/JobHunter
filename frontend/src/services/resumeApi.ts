@@ -48,3 +48,17 @@ export const updateStatusResumeForRecruiter = (id: string, status: string) => {
         { status }
     );
 };
+
+export const findAllResumesAdmin = (params: PaginationQuery & { companyName?: string, jobName?: string }) => {
+    return axiosClient.get<ApiResponse<PaginatedResponse<ResumeDisplayDto>>>(
+        "/resume/admin/all",
+        { params }
+    );
+};
+
+export const updateStatusResumeAdmin = (id: string, status: string) => {
+    return axiosClient.patch<ApiResponse<ResumeResponseDto>>(
+        `/resume/admin/${id}`,
+        { status }
+    );
+};

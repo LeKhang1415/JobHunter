@@ -19,6 +19,7 @@ import { ResponseMessage } from 'src/common/decorators/response-message.decorato
 import { UpdateResumeDto } from './dtos/update-resume.dto';
 import { PaginationQueryDto } from 'src/common/pagination/dtos/pagination-query.dto';
 import { ChangeResumeStatusDto } from './dtos/change-resume-status.dto';
+import { ResumePaginationQueryDto } from './dtos/resume-pagination-query.dto';
 
 @Controller('resume')
 export class ResumeController {
@@ -80,8 +81,8 @@ export class ResumeController {
 
   @Get('admin/all')
   @ResponseMessage('Lấy tất cả hồ sơ (Admin) thành công')
-  findAllResumes(@Query() pagination: PaginationQueryDto) {
-    return this.resumeService.findAllResumes(pagination);
+  findAllResumes(@Query() pagiantion: ResumePaginationQueryDto) {
+    return this.resumeService.findAllResumes(pagiantion);
   }
 
   @Patch('admin/:id')

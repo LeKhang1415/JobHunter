@@ -9,7 +9,7 @@ import { JobService } from '../job/job.service';
 import { InjectRepository } from '@nestjs/typeorm';
 import { PaginationProvider } from 'src/common/pagination/providers/pagination.provider';
 import { Resume } from './entities/resume.entity';
-import { FindOptionsWhere, Repository } from 'typeorm';
+import { FindOptionsWhere, Repository, ILike } from 'typeorm';
 import { JwtPayload } from '../auth/interfaces/jwt-payload.interface';
 import { CreateResumeDto } from './dtos/create-resume.dto';
 import { ResumeResponseDto } from './dtos/resume-response.dto';
@@ -21,6 +21,7 @@ import { PaginationQueryDto } from 'src/common/pagination/dtos/pagination-query.
 import { Paginated } from 'src/common/pagination/interfaces/paginated.interface';
 import { ResumeStatus } from 'src/common/enums/resume-status.enum';
 import { ChangeResumeStatusDto } from './dtos/change-resume-status.dto';
+import { ResumePaginationQueryDto } from './dtos/resume-pagination-query.dto';
 
 @Injectable()
 export class ResumeService {
@@ -183,8 +184,18 @@ export class ResumeService {
     }
 
 
-    async findAllResumes(pagination: PaginationQueryDto): Promise<Paginated<ResumeDisplayDto>> {
+    async findAllResumes(pagination: ResumePaginationQueryDto): Promise<Paginated<ResumeDisplayDto>> {
         const where: FindOptionsWhere<Resume> = {};
+
+        if (pagination.companyName || pagination.jobName) {
+            where.job = {};
+            if (pagination.companyName) {
+                where.job.company = { name: ILike(`%${pagination.companyName}%`) };
+            }
+            if (pagination.jobName) {
+                where.job.name = ILike(`%${pagination.jobName}%`);
+            }
+        }
 
         const paginated = await this.paginationProvider.paginateQuery(
             pagination,
