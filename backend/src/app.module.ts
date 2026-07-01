@@ -15,6 +15,8 @@ import { CompanyModule } from './modules/company/company.module';
 import { JobModule } from './modules/job/job.module';
 import { ResumeModule } from './modules/resume/resume.module';
 import { UploadModule } from './modules/upload/upload.module';
+import { SessionsModule } from './modules/sessions/sessions.module';
+import { RedisModule } from './modules/redis/redis.module';
 import jwtConfig from './config/jwt.config';
 
 @Module({
@@ -46,6 +48,8 @@ import jwtConfig from './config/jwt.config';
     JobModule,
     ResumeModule,
     UploadModule,
+    SessionsModule,
+    RedisModule,
   ],
   controllers: [AppController],
   providers: [
