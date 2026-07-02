@@ -1,15 +1,70 @@
 import { Injectable } from '@nestjs/common';
+import * as crypto from 'crypto';
 import { Session } from './entities/session.entity';
-import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { v4 as uuidv4 } from 'uuid';
+import { RedisService } from '../redis/redis.service';
+import { UAParser } from 'ua-parser-js';
 
 @Injectable()
 export class SessionsService {
 
     constructor(
+        private readonly redisService: RedisService
     ) { }
 
     private buildKey(token: string, userId: string): string {
-        return `auth::refesh_token`
+        const hashedToken = crypto.createHash('sha256').update(token).digest('hex');
+
+        return `auth::refesh_token:${userId}:${hashedToken}`
+    }
+
+    async createSession(userId: string, refreshToken: string, userAgent: string, expiresInSeconds: number) {
+        const redisKey = this.buildKey(refreshToken, userId)
+
+        const parser = new UAParser(userAgent);
+
+        const device = parser.getDevice()
+
+        const browser = parser.getBrowser()
+
+        const os = parser.getOS();
+
+        const deviceName = `${os.name || 'Unknown OS'} - ${browser.name || 'Unknown Browser'}`
+
+        const deviceType = device.type || 'desktop';
+
+        const sessionInfo: Session = {
+            sessionId: uuidv4(),
+            deviceName: deviceName,
+            deviceType: deviceType,
+            userAgent: userAgent,
+            loginAt: new Date()
+        }
+
+        await this.redisService.set(redisKey, sessionInfo, expiresInSeconds);
+    }
+
+    async getAllUserSessions(userId: string, currentRefreshToken: string) {
+        const currentRedisKey = this.buildKey(currentRefreshToken, userId);
+
+        const pattern = `auth::refesh_token:${userId}:*`;
+
+        const keys = await this.redisService.keys(pattern)
+
+        if (keys.length === 0) return [];
+
+        const sessionsData = await this.redisService.mget(keys);
+
+        return keys.map((key, index) => {
+            return {
+                redisKey: key,
+                isCurrent: key === currentRedisKey,
+                ...sessionsData[index]
+            }
+        })
+    }
+
+    async removeSession(key: string): Promise<void> {
+        await this.redisService.del(key)
     }
 }
