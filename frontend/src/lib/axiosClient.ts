@@ -3,6 +3,7 @@ import { refreshTokenApi } from "@/services/authApi";
 import { updateTokenManually } from "@/features/slices/auth/authSlice";
 import { logout } from "@/features/slices/auth/authThunk";
 import type { AppDispatch } from "@/features/store";
+import { toast } from "sonner";
 
 let dispatchRef: AppDispatch;
 
@@ -87,9 +88,13 @@ axiosClient.interceptors.response.use(
 
                 originalRequest.headers.Authorization = `Bearer ${accessToken}`;
                 return axiosClient(originalRequest);
-            } catch (refreshError) {
+            } catch (refreshError: any) {
                 processQueue(refreshError);
                 dispatchRef(logout());
+
+                const errorMsg = refreshError?.response?.data?.message || "Phiên đăng nhập đã kết thúc. Vui lòng đăng nhập lại!";
+                toast.error(errorMsg);
+
                 return Promise.reject(refreshError);
             } finally {
                 isRefreshing = false;
