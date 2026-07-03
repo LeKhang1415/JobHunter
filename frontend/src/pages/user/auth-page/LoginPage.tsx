@@ -4,6 +4,8 @@ import { login } from "@/features/slices/auth/authThunk";
 import React, { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 
+import { toast } from "sonner";
+
 export default function LoginPage() {
     const [form, setForm] = useState({ email: "", password: "" });
     const [error, setError] = useState<string>("");
@@ -26,7 +28,7 @@ export default function LoginPage() {
         return regex.test(email);
     };
 
-    const handleSubmit = (e: React.SubmitEvent) => {
+    const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
 
         if (!form.email || !form.password) {
@@ -39,7 +41,11 @@ export default function LoginPage() {
             return;
         }
 
-        dispatch(login(form));
+        try {
+            await dispatch(login(form)).unwrap();
+        } catch (err: any) {
+            setError(err);
+        }
     };
 
     return (

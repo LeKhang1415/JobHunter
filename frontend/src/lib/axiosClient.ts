@@ -58,8 +58,10 @@ axiosClient.interceptors.response.use(
         const errorCode = error.response?.data?.error as string | undefined;
 
         const isTokenExpired = status === 401 && errorCode === "Unauthorized";
+        const isLoginApi = originalRequest.url === "/auth/login";
 
-        if (isTokenExpired && !originalRequest._retry) {
+        // Chỉ chặn lại để đi xin cấp token mới (refresh) nếu KHÔNG PHẢI là api login
+        if (isTokenExpired && !originalRequest._retry && !isLoginApi) {
             originalRequest._retry = true;
 
             if (isRefreshing) {
