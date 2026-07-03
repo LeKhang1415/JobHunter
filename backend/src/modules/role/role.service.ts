@@ -14,12 +14,12 @@ import { PermissionsService } from '../permissions/permissions.service';
 
 import { UpdateRoleDto } from './dtos/update-role.dto';
 import { RoleEnum } from 'src/common/enums/role.enum';
-import { PaginationQueryDto } from 'src/common/pagination/dtos/pagination-query.dto';
 import { Paginated } from 'src/common/pagination/interfaces/paginated.interface';
 import { PaginationProvider } from 'src/common/pagination/providers/pagination.provider';
 import { RoleResponseDto } from './dtos/role-response.dto';
 import { UsersService } from '../users/users.service';
 import { RolePaginationQueryDto } from './dtos/role-pagination-query.dto';
+import { RedisService } from '../redis/redis.service';
 
 @Injectable()
 export class RoleService {
@@ -31,9 +31,11 @@ export class RoleService {
 
     private readonly paginationProvider: PaginationProvider,
 
+    private readonly redisService: RedisService,
+
     @Inject(forwardRef(() => UsersService))
     private readonly usersService: UsersService,
-  ) {}
+  ) { }
 
   async create(createRoleDto: CreateRoleDto): Promise<RoleResponseDto> {
     const { name, description, active, permissionIds } = createRoleDto;
@@ -75,6 +77,8 @@ export class RoleService {
 
     const role = await this.findById(id);
 
+    const oldRoleName = role.name;
+
     if (name && role.name !== RoleEnum.ADMIN && role.name !== RoleEnum.USER) {
       role.name = name.trim().toUpperCase();
     }
@@ -95,6 +99,12 @@ export class RoleService {
       role.permissions = requestedPermissions;
     }
     const updated = await this.roleRepository.save(role);
+
+    await this.deleteCache(oldRoleName);
+
+    if (oldRoleName !== updated.name) {
+      await this.deleteCache(updated.name);
+    }
 
     return this.mapToRoleResponseDto(updated);
   }
@@ -201,6 +211,8 @@ export class RoleService {
 
     await this.roleRepository.remove(role);
 
+    await this.deleteCache(currentName)
+
     return response;
   }
 
@@ -211,6 +223,12 @@ export class RoleService {
     });
 
     return roles.map((role) => this.mapToRoleResponseDto(role));
+  }
+
+  private async deleteCache(roleName: string) {
+    const cacheKey = `role_permission:${roleName}`;
+
+    await this.redisService.del(cacheKey)
   }
 
   private mapToRoleResponseDto(role: Role): RoleResponseDto {

@@ -12,4 +12,4 @@ import { PaginationModule } from 'src/common/pagination/pagination.module';
   controllers: [PermissionsController],
   exports: [PermissionsService],
 })
-export class PermissionsModule {}
+export class PermissionsModule { }

@@ -23,7 +23,7 @@ export class PermissionsService {
     private readonly paginationProvider: PaginationProvider,
 
     private readonly dataSource: DataSource,
-  ) {}
+  ) { }
   async create(
     createPermissionDto: CreatePermissionDto,
   ): Promise<PermissionResponseDto> {

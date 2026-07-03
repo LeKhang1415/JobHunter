@@ -44,16 +44,11 @@ export class RefreshTokenProvider {
         throw new ForbiddenException('User chưa có role');
       }
 
-      const permissions = user.role.permissions.map(
-        (p) => `${p.method} ${p.apiPath}`,
-      );
-
       return this.jwtService.signAsync(
         {
           sub: user.id,
           email: user.email,
           role: user.role.name,
-          permissions,
         },
         {
           secret: this.jwtConfiguration.secret,

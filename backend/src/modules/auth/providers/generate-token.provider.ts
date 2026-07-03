@@ -37,7 +37,6 @@ export class GenerateTokenProvider {
 
   async generateTokenWithCookie(
     user: User,
-    permissions: string[],
     response: Response,
     userAgent: string
   ): Promise<string> {
@@ -52,7 +51,6 @@ export class GenerateTokenProvider {
         {
           email: user.email,
           role: user.role.name,
-          permissions,
         },
       ),
 

@@ -74,14 +74,9 @@ export class AuthService {
       throw new ForbiddenException('User chưa có role');
     }
 
-    const permissions = await this.roleService.getPermissionByName(
-      savedUser.role.name,
-    );
-
     const accessToken =
       await this.generateTokenProvider.generateTokenWithCookie(
         savedUser,
-        permissions,
         response,
         userAgent
       );
@@ -108,14 +103,9 @@ export class AuthService {
       throw new ForbiddenException('User chưa có role');
     }
 
-    const permissions = await this.roleService.getPermissionByName(
-      existingUser.role.name,
-    );
-
     const accessToken =
       await this.generateTokenProvider.generateTokenWithCookie(
         existingUser,
-        permissions,
         response,
         userAgent
       );
