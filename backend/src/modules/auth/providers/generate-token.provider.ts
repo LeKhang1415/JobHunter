@@ -5,15 +5,18 @@ import jwtConfig from 'src/config/jwt.config';
 import { JwtPayload } from '../interfaces/jwt-payload.interface';
 import { ConfigType } from '@nestjs/config';
 import { Response } from 'express';
+import { SessionsService } from 'src/modules/sessions/sessions.service';
 
 @Injectable()
 export class GenerateTokenProvider {
   constructor(
     private readonly jwtService: JwtService,
 
+    private readonly sessionsService: SessionsService,
+
     @Inject(jwtConfig.KEY)
     private readonly jwtConfiguration: ConfigType<typeof jwtConfig>,
-  ) {}
+  ) { }
 
   async signToken<T>(
     userId: string,
@@ -36,6 +39,7 @@ export class GenerateTokenProvider {
     user: User,
     permissions: string[],
     response: Response,
+    userAgent: string
   ): Promise<string> {
     if (!user.role) {
       throw new ForbiddenException('User chưa có role');
@@ -62,6 +66,8 @@ export class GenerateTokenProvider {
       maxAge: this.jwtConfiguration.refreshTokenTtl * 1000,
       path: '/',
     });
+
+    await this.sessionsService.createSession(user.id, refreshToken, userAgent, this.jwtConfiguration.refreshTokenTtl)
 
     return accessToken;
   }

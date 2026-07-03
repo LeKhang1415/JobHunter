@@ -8,6 +8,7 @@ import { JwtService } from '@nestjs/jwt';
 import { ConfigType } from '@nestjs/config';
 import jwtConfig from 'src/config/jwt.config';
 import { UsersService } from 'src/modules/users/users.service';
+import { SessionsService } from 'src/modules/sessions/sessions.service';
 
 @Injectable()
 export class RefreshTokenProvider {
@@ -17,13 +18,21 @@ export class RefreshTokenProvider {
 
     @Inject(jwtConfig.KEY)
     private readonly jwtConfiguration: ConfigType<typeof jwtConfig>,
-  ) {}
+
+    private readonly sessionsService: SessionsService,
+  ) { }
 
   async refreshAccessToken(refreshToken: string): Promise<string> {
     try {
       const payload = await this.jwtService.verifyAsync(refreshToken, {
         secret: this.jwtConfiguration.secret,
       });
+
+      const isValidSession = await this.sessionsService.checkSession(payload.sub, refreshToken)
+
+      if (!isValidSession) {
+        throw new UnauthorizedException('Phiên đăng nhập đã bị vô hiệu hóa hoặc đăng xuất từ xa');
+      }
 
       const user = await this.usersService.findById(payload.sub);
 
@@ -51,7 +60,10 @@ export class RefreshTokenProvider {
           expiresIn: this.jwtConfiguration.accessTokenTtl,
         },
       );
-    } catch {
+    } catch (error) {
+      if (error instanceof UnauthorizedException) {
+        throw error;
+      }
       throw new UnauthorizedException('Refresh token không hợp lệ');
     }
   }

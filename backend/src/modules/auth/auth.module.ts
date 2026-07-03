@@ -12,6 +12,7 @@ import { ConfigModule } from '@nestjs/config';
 import { GenerateTokenProvider } from './providers/generate-token.provider';
 import jwtConfig from 'src/config/jwt.config';
 import { RefreshTokenProvider } from './providers/refresh-token.provider';
+import { SessionsModule } from '../sessions/sessions.module';
 
 @Module({
   imports: [
@@ -34,6 +35,7 @@ import { RefreshTokenProvider } from './providers/refresh-token.provider';
     }),
 
     RoleModule,
+    SessionsModule
   ],
   providers: [
     AuthService,
@@ -52,4 +54,4 @@ import { RefreshTokenProvider } from './providers/refresh-token.provider';
     },
   ],
 })
-export class AuthModule {}
+export class AuthModule { }

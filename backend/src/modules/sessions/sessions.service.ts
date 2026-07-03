@@ -7,29 +7,31 @@ import { UAParser } from 'ua-parser-js';
 
 @Injectable()
 export class SessionsService {
-
-    constructor(
-        private readonly redisService: RedisService
-    ) { }
+    constructor(private readonly redisService: RedisService) { }
 
     private buildKey(token: string, userId: string): string {
         const hashedToken = crypto.createHash('sha256').update(token).digest('hex');
 
-        return `auth::refesh_token:${userId}:${hashedToken}`
+        return `auth::refresh_token:${userId}:${hashedToken}`;
     }
 
-    async createSession(userId: string, refreshToken: string, userAgent: string, expiresInSeconds: number) {
-        const redisKey = this.buildKey(refreshToken, userId)
+    async createSession(
+        userId: string,
+        refreshToken: string,
+        userAgent: string,
+        expiresInSeconds: number,
+    ) {
+        const redisKey = this.buildKey(refreshToken, userId);
 
         const parser = new UAParser(userAgent);
 
-        const device = parser.getDevice()
+        const device = parser.getDevice();
 
-        const browser = parser.getBrowser()
+        const browser = parser.getBrowser();
 
         const os = parser.getOS();
 
-        const deviceName = `${os.name || 'Unknown OS'} - ${browser.name || 'Unknown Browser'}`
+        const deviceName = `${os.name || 'Unknown OS'} - ${browser.name || 'Unknown Browser'}`;
 
         const deviceType = device.type || 'desktop';
 
@@ -38,8 +40,8 @@ export class SessionsService {
             deviceName: deviceName,
             deviceType: deviceType,
             userAgent: userAgent,
-            loginAt: new Date()
-        }
+            loginAt: new Date(),
+        };
 
         await this.redisService.set(redisKey, sessionInfo, expiresInSeconds);
     }
@@ -47,9 +49,9 @@ export class SessionsService {
     async getAllUserSessions(userId: string, currentRefreshToken: string) {
         const currentRedisKey = this.buildKey(currentRefreshToken, userId);
 
-        const pattern = `auth::refesh_token:${userId}:*`;
+        const pattern = `auth::refresh_token:${userId}:*`;
 
-        const keys = await this.redisService.keys(pattern)
+        const keys = await this.redisService.keys(pattern);
 
         if (keys.length === 0) return [];
 
@@ -59,12 +61,29 @@ export class SessionsService {
             return {
                 redisKey: key,
                 isCurrent: key === currentRedisKey,
-                ...sessionsData[index]
-            }
-        })
+                ...sessionsData[index],
+            };
+        });
     }
 
-    async removeSession(key: string): Promise<void> {
-        await this.redisService.del(key)
+    async removeCurrentSession(
+        userId: string,
+        currentRefreshToken: string,
+    ): Promise<void> {
+        const currentRedisKey = this.buildKey(currentRefreshToken, userId);
+
+        await this.redisService.del(currentRedisKey);
+    }
+
+    async removeSessionByRedisKey(redisKey: string) {
+        await this.redisService.del(redisKey)
+    }
+
+    async checkSession(userId: string, currentRefreshToken: string): Promise<boolean> {
+        const keyRedis = this.buildKey(currentRefreshToken, userId)
+
+        const session = await this.redisService.get(keyRedis)
+
+        return session !== null
     }
 }

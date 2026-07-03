@@ -19,6 +19,7 @@ import { LoginUser } from './dtos/login-user.dto';
 import { HashingProvider } from './providers/hashing.provider';
 import { RefreshTokenProvider } from './providers/refresh-token.provider';
 import { AuthResponseDto } from './dtos/auth-reponse.dto';
+import { SessionsService } from '../sessions/sessions.service';
 
 @Injectable()
 export class AuthService {
@@ -37,8 +38,10 @@ export class AuthService {
     private readonly generateTokenProvider: GenerateTokenProvider,
 
     private readonly refreshTokenProvider: RefreshTokenProvider,
-  ) {}
-  async register(registerUser: RegisterUser, response: Response) {
+
+    private readonly sessionsService: SessionsService
+  ) { }
+  async register(registerUser: RegisterUser, response: Response, userAgent: string) {
     const { email, name, password, gender, address, recruiter } = registerUser;
     if (await this.usersService.existsByEmail(email)) {
       throw new BadRequestException('Email đã tồn tại');
@@ -80,12 +83,13 @@ export class AuthService {
         savedUser,
         permissions,
         response,
+        userAgent
       );
 
     return this.mapToResponseDto(accessToken, savedUser);
   }
 
-  async login(loginUser: LoginUser, response: Response) {
+  async login(loginUser: LoginUser, response: Response, userAgent) {
     const existingUser = await this.usersService.findByEmail(loginUser.email);
 
     if (!existingUser) {
@@ -113,12 +117,17 @@ export class AuthService {
         existingUser,
         permissions,
         response,
+        userAgent
       );
     return this.mapToResponseDto(accessToken, existingUser);
   }
 
-  async logout(response: Response): Promise<void> {
+  async logout(response: Response, refreshToken: string, userId: string): Promise<void> {
     this.generateTokenProvider.clearRefreshTokenCookie(response);
+
+    if (refreshToken && userId) {
+      await this.sessionsService.removeCurrentSession(userId, refreshToken)
+    }
   }
 
   async refresh(request: Request) {
@@ -127,7 +136,6 @@ export class AuthService {
     if (!refreshToken) {
       throw new UnauthorizedException('Không tìm thấy RefreshToken');
     }
-
     const accessToken =
       await this.refreshTokenProvider.refreshAccessToken(refreshToken);
 

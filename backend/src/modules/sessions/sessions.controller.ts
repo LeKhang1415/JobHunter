@@ -25,6 +25,6 @@ export class SessionsController {
     @ResponseMessage('Đã đăng xuất thiết bị thành công')
     @Delete()
     async removeSession(@Body('redisKey') redisKey: string) {
-        await this.sessionsService.removeSession(redisKey);
+        await this.sessionsService.removeSessionByRedisKey(redisKey);
     }
 }
