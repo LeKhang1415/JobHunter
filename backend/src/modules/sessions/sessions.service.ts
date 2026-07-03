@@ -1,7 +1,5 @@
 import { Injectable } from '@nestjs/common';
 import * as crypto from 'crypto';
-import { Session } from './entities/session.entity';
-import { v4 as uuidv4 } from 'uuid';
 import { RedisService } from '../redis/redis.service';
 import { UAParser } from 'ua-parser-js';
 
@@ -35,8 +33,8 @@ export class SessionsService {
 
         const deviceType = device.type || 'desktop';
 
-        const sessionInfo: Session = {
-            sessionId: uuidv4(),
+        const sessionInfo = {
+            sessionId: crypto.randomUUID(),
             deviceName: deviceName,
             deviceType: deviceType,
             userAgent: userAgent,
