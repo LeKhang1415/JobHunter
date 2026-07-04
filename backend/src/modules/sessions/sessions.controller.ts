@@ -7,24 +7,24 @@ import { ResponseMessage } from 'src/common/decorators/response-message.decorato
 
 @Controller('sessions')
 export class SessionsController {
-    constructor(private readonly sessionsService: SessionsService) { }
+  constructor(private readonly sessionsService: SessionsService) { }
 
-    @ResponseMessage('Lấy danh sách thiết bị thành công')
-    @Get()
-    async getSessions(
-        @CurrentUser() user: JwtPayload,
-        @Req() req: Request
-    ) {
-        const userId = user.sub;
+  @ResponseMessage('Lấy danh sách thiết bị thành công')
+  @Get()
+  async getAllUserSessions(
+    @CurrentUser() user: JwtPayload,
+    @Req() req: Request,
+  ) {
+    const userId = user.sub;
 
-        const currentRefreshToken = req.cookies?.refreshToken || '';
+    const currentRefreshToken = req.cookies?.refreshToken || '';
 
-        return this.sessionsService.getAllUserSessions(userId, currentRefreshToken);
-    }
+    return this.sessionsService.getAllUserSessions(userId, currentRefreshToken);
+  }
 
-    @ResponseMessage('Đã đăng xuất thiết bị thành công')
-    @Delete()
-    async removeSession(@Body('redisKey') redisKey: string) {
-        await this.sessionsService.removeSessionByRedisKey(redisKey);
-    }
+  @ResponseMessage('Đã đăng xuất thiết bị thành công')
+  @Delete()
+  async removeSession(@Body('sessionId') sessionId: string, @CurrentUser() user: JwtPayload,) {
+    await this.sessionsService.removeSessionBySessionId(user, sessionId);
+  }
 }

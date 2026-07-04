@@ -4,8 +4,6 @@ import { login } from "@/features/slices/auth/authThunk";
 import React, { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 
-import { toast } from "sonner";
-
 export default function LoginPage() {
     const [form, setForm] = useState({ email: "", password: "" });
     const [error, setError] = useState<string>("");
