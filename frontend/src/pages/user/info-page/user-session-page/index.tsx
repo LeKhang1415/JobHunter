@@ -64,7 +64,11 @@ export default function SecurityPage() {
             Quản lý các thiết bị đã đăng nhập vào tài khoản của bạn
           </p>
         </div>
-        <SessionsList />
+        <SessionsList 
+          sessions={sessions} 
+          onLogout={handleLogoutSession} 
+          isLoggingOut={isLoggingOut}
+        />
       </div>
     </div>
   );

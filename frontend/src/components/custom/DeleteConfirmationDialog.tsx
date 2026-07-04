@@ -56,7 +56,7 @@ export const DeleteConfirmDialog = ({
                     <AlertDialogCancel>Hủy</AlertDialogCancel>
                     <AlertDialogAction
                         onClick={onConfirm}
-                        className="bg-orange-500"
+                        className="bg-green-500"
                     >
                         Xác nhận xóa
                     </AlertDialogAction>
