@@ -29,9 +29,5 @@ export const refreshTokenApi = () =>
     );
 
 export const logoutApi = () => {
-    return axios.post(
-        "http://localhost:3000/auth/logout",
-        {},
-        { withCredentials: true },
-    );
+    return axiosClient.post("/auth/logout", {});
 };

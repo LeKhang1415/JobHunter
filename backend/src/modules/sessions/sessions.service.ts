@@ -58,7 +58,6 @@ export class SessionsService {
 
     return keys.map((key, index) => {
       return {
-        redisKey: key,
         isCurrent: key === currentRedisKey,
         ...sessionsData[index],
       };
@@ -83,9 +82,8 @@ export class SessionsService {
     const sessionsData = await this.redisService.mget(keys);
 
     for (let i = 0; i < sessionsData.length; i++) {
-      const dataStr = sessionsData[i]
-      if (dataStr) {
-        const sessionInfo = JSON.parse(dataStr)
+      const sessionInfo = sessionsData[i]
+      if (sessionInfo) {
         if (sessionInfo.sessionId === targetSessionId) {
           await this.redisService.del(keys[i])
           return

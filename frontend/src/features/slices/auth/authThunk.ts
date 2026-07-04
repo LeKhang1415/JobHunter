@@ -38,7 +38,10 @@ export const logout = createAsyncThunk("auth/logout", async (_, thunkAPI) => {
         await logoutApi();
     } finally {
         thunkAPI.dispatch(clearAuth());
-        window.location.href = "/login";
+        // Cho redux-persist thời gian lưu state trước khi chuyển trang
+        setTimeout(() => {
+            window.location.href = "/login";
+        }, 100);
     }
 });
 
