@@ -18,6 +18,11 @@ import { UploadModule } from './modules/upload/upload.module';
 import { SessionsModule } from './modules/sessions/sessions.module';
 import { RedisModule } from './modules/redis/redis.module';
 import jwtConfig from './config/jwt.config';
+import { BullModule } from '@nestjs/bullmq';
+import { ScheduleModule } from '@nestjs/schedule';
+import { MailerModule } from '@nestjs-modules/mailer';
+import { MailModule } from './modules/mail/mail.module';
+import { CronModule } from './modules/cron/cron.module';
 
 @Module({
   imports: [
@@ -50,6 +55,29 @@ import jwtConfig from './config/jwt.config';
     UploadModule,
     SessionsModule,
     RedisModule,
+    BullModule.forRootAsync({
+      imports: [ConfigModule],
+      useFactory: async (configService: ConfigService) => ({
+        connection: {
+          host: configService.get<string>('REDIS_HOST'),
+          port: configService.get<number>('REDIS_PORT'),
+        },
+      }),
+      inject: [ConfigService],
+    }),
+    ScheduleModule.forRoot(),
+    MailerModule.forRoot({
+      transport: {
+        host: 'sandbox.smtp.mailtrap.io',
+        port: 2525,
+        auth: {
+          user: 'YOUR_USER',
+          pass: 'YOUR_PASS',
+        },
+      },
+    }),
+    MailModule,
+    CronModule,
   ],
   controllers: [AppController],
   providers: [
@@ -68,4 +96,4 @@ import jwtConfig from './config/jwt.config';
     },
   ],
 })
-export class AppModule {}
+export class AppModule { }

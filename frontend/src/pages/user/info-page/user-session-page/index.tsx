@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import { toast } from 'sonner';
 import { getErrorMessage } from '@/features/slices/auth/authThunk';
 import { getAllUserSessionsApi, removeSessionApi } from '@/services/sessionApi';
+import { Loader2 } from 'lucide-react';
 
 export default function SecurityPage() {
 
@@ -38,8 +39,6 @@ export default function SecurityPage() {
     fetchSessions();
   }, []);
 
-  console.log(sessions)
-
   const handleLogoutSession = async (sessionId: string) => {
     try {
       setIsLoggingOut(sessionId);
@@ -64,11 +63,19 @@ export default function SecurityPage() {
             Quản lý các thiết bị đã đăng nhập vào tài khoản của bạn
           </p>
         </div>
-        <SessionsList 
-          sessions={sessions} 
-          onLogout={handleLogoutSession} 
-          isLoggingOut={isLoggingOut}
-        />
+
+        {isLoading ? (
+          <div className="flex flex-col items-center justify-center py-20 text-gray-500">
+            <Loader2 className="w-10 h-10 animate-spin text-green-500 mb-4" />
+            <p className="font-medium">Đang tải thông tin phiên đăng nhập...</p>
+          </div>
+        ) : (
+          <SessionsList
+            sessions={sessions}
+            onLogout={handleLogoutSession}
+            isLoggingOut={isLoggingOut}
+          />
+        )}
       </div>
     </div>
   );
