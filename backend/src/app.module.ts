@@ -49,6 +49,7 @@ import { CronModule } from './modules/cron/cron.module';
     RoleModule,
     PermissionsModule,
     AuthModule,
+
     CompanyModule,
     JobModule,
     ResumeModule,
@@ -66,15 +67,19 @@ import { CronModule } from './modules/cron/cron.module';
       inject: [ConfigService],
     }),
     ScheduleModule.forRoot(),
-    MailerModule.forRoot({
-      transport: {
-        host: 'sandbox.smtp.mailtrap.io',
-        port: 2525,
-        auth: {
-          user: 'YOUR_USER',
-          pass: 'YOUR_PASS',
+    MailerModule.forRootAsync({
+      imports: [ConfigModule],
+      useFactory: async (configService: ConfigService) => ({
+        transport: {
+          host: configService.get<string>('MAIL_HOST'),
+          port: configService.get<number>('MAIL_PORT'),
+          auth: {
+            user: configService.get<string>('MAIL_USER'),
+            pass: configService.get<string>('MAIL_PASSWORD'),
+          },
         },
-      },
+      }),
+      inject: [ConfigService],
     }),
     MailModule,
     CronModule,
