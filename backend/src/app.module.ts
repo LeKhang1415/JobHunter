@@ -22,7 +22,7 @@ import { BullModule } from '@nestjs/bullmq';
 import { ScheduleModule } from '@nestjs/schedule';
 import { MailerModule } from '@nestjs-modules/mailer';
 import { MailModule } from './modules/mail/mail.module';
-import { CronModule } from './modules/cron/cron.module';
+
 
 @Module({
   imports: [
@@ -82,7 +82,7 @@ import { CronModule } from './modules/cron/cron.module';
       inject: [ConfigService],
     }),
     MailModule,
-    CronModule,
+
   ],
   controllers: [AppController],
   providers: [
