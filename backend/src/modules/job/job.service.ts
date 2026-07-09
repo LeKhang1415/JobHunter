@@ -9,7 +9,7 @@ import { UsersService } from '../users/users.service';
 import { SkillsService } from '../skills/skills.service';
 import { CompanyService } from '../company/company.service';
 import { Job } from './entities/job.entity';
-import { Repository } from 'typeorm';
+import { MoreThanOrEqual, Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import { JobResponseDto } from './dtos/job-response.dto';
 import { UploadService } from '../upload/upload.service';
@@ -346,6 +346,19 @@ export class JobService {
         company: { id: companyId },
       },
     });
+  }
+
+  async getNewJobs(): Promise<Job[]> {
+    const yesterday = new Date()
+
+    yesterday.setDate(yesterday.getDate() - 1);
+
+    return await this.jobRepository.find({
+      where: {
+        startDate: MoreThanOrEqual(yesterday),
+        active: true,
+      }, relations: ["company", "skills"]
+    })
   }
 
   private validateDates(startDate: Date | string, endDate: Date | string) {

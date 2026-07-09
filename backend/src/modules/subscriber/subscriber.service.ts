@@ -19,7 +19,7 @@ export class SubscriberService {
 
     @InjectRepository(Skill)
     private readonly skillRepository: Repository<Skill>,
-  ) {}
+  ) { }
 
   async createSelf(
     email: string,
@@ -91,6 +91,12 @@ export class SubscriberService {
     }
 
     await this.subscriberRepository.remove(subscriber);
+  }
+
+  async getSubscribersWithSkills() {
+    return await this.subscriberRepository.find({
+      relations: ['skills'],
+    });
   }
 
   private mapToResponseDto(subscriber: Subscriber): SubscriberResponseDto {
