@@ -39,10 +39,9 @@ Hệ thống được chia làm 3 vai trò (role) chính, mỗi vai trò có cá
 ### Frontend (Giao diện người dùng)
 - **Công nghệ chính:** React, TypeScript.
 - **Styling:** Tailwind CSS, kết hợp với các component từ thư viện Radix UI (thông qua kiến trúc shadcn/ui) cho một giao diện nhất quán, linh hoạt và đẹp mắt.
-- **UI/UX:** Sử dụng Lucide React cho hệ thống icon. Tối ưu hóa trải nghiệm người dùng với các hiệu ứng (micro-animations), màu sắc chủ đạo xanh lá (Green theme) tạo cảm giác thân thiện, tin cậy.
+- **Axios interceptor:** Tự động refresh token.
 - **State Management & Data Fetching:** Sử dụng Redux Toolkit, gọi API chuẩn RESTful.
-- **Hiệu năng:** Xử lý form mượt mà, validation chặt chẽ dữ liệu đầu vào.
-
+- **PDF Viewer:** Xem trực tiếp file PDF trên web, không cần tải về.
 
 ---
 
