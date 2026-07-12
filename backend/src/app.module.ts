@@ -60,8 +60,22 @@ import { MailModule } from './modules/mail/mail.module';
       imports: [ConfigModule],
       useFactory: async (configService: ConfigService) => ({
         connection: {
-          host: configService.get<string>('REDIS_HOST'),
+          host: configService.get('REDIS_HOST'),
           port: configService.get<number>('REDIS_PORT'),
+          maxRetriesPerRequest: null,
+          enableReadyCheck: false,
+          reconnectOnError: (_) => true,
+          retryStrategy: (times) => {
+            if (times > 4) {
+              return 200;
+            }
+            return Math.min(times * 50, 200);
+          },
+        },
+        defaultJobOptions: {
+          attempts: 3,
+          removeOnComplete: 1000,
+          removeOnFail: 5000,
         },
       }),
       inject: [ConfigService],

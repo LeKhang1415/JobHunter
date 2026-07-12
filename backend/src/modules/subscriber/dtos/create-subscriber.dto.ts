@@ -1,8 +1,8 @@
-import { IsArray, IsOptional, ValidateNested } from 'class-validator';
+import { IsArray, IsOptional, IsString } from 'class-validator';
 
 export class CreateSubscriberDto {
   @IsOptional()
   @IsArray()
-  @ValidateNested({ each: true })
+  @IsString({ each: true })
   skills?: string[];
 }

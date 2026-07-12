@@ -104,7 +104,7 @@ export default function SkillSelectionModal({
                             </div>
                         ) : (
                             filteredSkills.map((skill) => (
-                                <div key={skill.id} className="flex items-center space-x-3 py-2 border-b last:border-0 hover:bg-gray-50 px-2 rounded-md transition-colors cursor-pointer" onClick={() => toggleSkill(skill, !selectedMap[skill.id])}>
+                                <div key={skill.id} className={`flex items-center space-x-3 py-2 border-b last:border-0 px-2 rounded-md transition-colors cursor-pointer ${selectedMap[skill.id] ? 'bg-green-50/50 hover:bg-green-50' : 'hover:bg-gray-50'}`} onClick={() => toggleSkill(skill, !selectedMap[skill.id])}>
                                     <Checkbox
                                         id={skill.id}
                                         checked={!!selectedMap[skill.id]}
@@ -122,14 +122,14 @@ export default function SkillSelectionModal({
                         )}
                     </div>
                     <div className="text-sm text-gray-500">
-                        Đã chọn: <span className="font-bold text-black">{Object.keys(selectedMap).length}</span> kỹ năng
+                        Đã chọn: <span className="font-bold text-green-600">{Object.keys(selectedMap).length}</span> kỹ năng
                     </div>
                 </div>
                 <DialogFooter>
                     <Button variant="outline" onClick={onClose}>
                         Hủy
                     </Button>
-                    <Button onClick={handleApply}>Lưu</Button>
+                    <Button onClick={handleApply} className="bg-green-600 hover:bg-green-700 text-white">Lưu</Button>
                 </DialogFooter>
             </DialogContent>
         </Dialog>

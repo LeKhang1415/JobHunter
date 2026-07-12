@@ -3,7 +3,7 @@ import { Badge } from "@/components/ui/badge.tsx";
 import { Label } from "@/components/ui/label.tsx";
 import { X, Wrench } from "lucide-react";
 import type { SkillSummary } from "@/types/job.type";
-import SkillSelectionModal from "./SkillSelectionModal";
+import SkillSelectionModal from "./job-manager-page/SkillSelectionModal";
 import { Button } from "@/components/ui/button";
 
 interface SkillSelectionProps {

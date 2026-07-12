@@ -40,7 +40,7 @@ import { formatISOToYMD } from "@/utils/convertHelper.ts";
 import { useAppSelector } from "@/features/hooks.ts";
 import type { DefaultJobRequestDto, SkillSummary } from "@/types/job.type";
 import RichTextEditor from "@/components/custom/RichText/RichTextEditor";
-import SkillSelection from "@/pages/commons/job-manager-page/SkillSelection";
+import SkillSelection from "@/pages/commons/SkillSelection";
 import CompanySelection from "@/pages/commons/job-manager-page/CompanySelection";
 import HasPermission from "@/components/custom/HasPermission";
 import { toast } from "sonner";
