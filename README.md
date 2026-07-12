@@ -30,7 +30,7 @@ Hệ thống được chia làm 3 vai trò (role) chính, mỗi vai trò có cá
 ### Backend (Hệ thống máy chủ)
 - **Công nghệ chính:** Nestjs, TypeORM, PostgreSQL.
 - **Quản lý File Cloud:** Tích hợp **Cloudinary** để upload và lưu trữ trực tuyến ảnh (Logo công ty) và file (CV ứng viên).
-- **Bảo mật:** Xác thực bằng JWT (Access/Refresh Token), mã hóa Bcrypt và validate dữ liệu chặt chẽ qua DTO.
+- **Bảo mật:** Xác thực bằng JWT (Access/Refresh Token), mã hóa Bcrypt và validate dữ liệu chặt chẽ qua DTO. Tích hợp Redis để theo dõi thiết bị đăng nhập, cho phép người dùng kiểm soát và đăng xuất tài khoản từ xa an toàn.
 - **Phân quyền:** Quản lý quyền hạn động (RBAC) kết hợp Caching bằng Redis và Custom Guards.
 - **Xử lý bất đồng bộ:** Tích hợp Redis và BullMQ (Message Queue) để xử lý các tác vụ nặng như gửi email mà không nghẽn API.
 - **Tự động hóa (Cron Jobs):** Gửi email gợi ý việc làm mỗi 7h sáng.
