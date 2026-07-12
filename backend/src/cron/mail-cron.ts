@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { Cron, CronExpression } from '@nestjs/schedule';
+import { Cron } from '@nestjs/schedule';
 import { JobService } from '../modules/job/job.service';
 import { SubscriberService } from '../modules/subscriber/subscriber.service';
 import { MailProducerService } from '../modules/mail/mail-producer.service';
@@ -12,7 +12,7 @@ export class MailCronService {
         private readonly mailProducerService: MailProducerService,
     ) { }
 
-    @Cron(CronExpression.EVERY_10_SECONDS)
+    @Cron('0 7 * * *', { timeZone: 'Asia/Ho_Chi_Minh' })
     async handleCron() {
         const newJobs = await this.jobService.getNewJobs();
 
