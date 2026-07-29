@@ -22,6 +22,7 @@ import { Paginated } from 'src/common/pagination/interfaces/paginated.interface'
 import { ResumeStatus } from 'src/common/enums/resume-status.enum';
 import { ChangeResumeStatusDto } from './dtos/change-resume-status.dto';
 import { ResumePaginationQueryDto } from './dtos/resume-pagination-query.dto';
+import { ResumeNotificationProducer } from '../resume-notification/resume-notification.producer';
 
 @Injectable()
 export class ResumeService {
@@ -30,6 +31,7 @@ export class ResumeService {
         private readonly jobService: JobService,
         private readonly uploadService: UploadService,
         private readonly paginationProvider: PaginationProvider,
+        private readonly resumeNotificationProducer: ResumeNotificationProducer,
         @InjectRepository(Resume)
         private readonly resumeRepository: Repository<Resume>,
     ) { }
@@ -174,13 +176,37 @@ export class ResumeService {
             throw new ForbiddenException("Bạn không có quyền cập nhật trạng thái CV của công ty khác")
         }
 
-        if (changeResumeStatusDto.status) {
-            existedResume.status = changeResumeStatusDto.status
+        const newStatus = changeResumeStatusDto.status;
+
+        if (newStatus) {
+            existedResume.status = newStatus;
         }
 
-        const savedResume = await this.resumeRepository.save(existedResume)
+        const savedResume = await this.resumeRepository.save(existedResume);
 
-        return this.mapToResponseDto(savedResume)
+        if (newStatus) {
+            const notificationPayload = {
+                candidateEmail: existedResume.email,
+                candidateName: existedResume.email.split('@')[0],
+                jobName: existedResume.job?.name ?? '',
+                companyName: existedResume.job?.company?.name ?? '',
+                resumeId: existedResume.id,
+            };
+
+            switch (newStatus) {
+                case ResumeStatus.ACCEPTED:
+                    await this.resumeNotificationProducer.notifyApproved(notificationPayload);
+                    break;
+                case ResumeStatus.REJECTED:
+                    await this.resumeNotificationProducer.notifyRejected(notificationPayload);
+                    break;
+                case ResumeStatus.REVIEWING:
+                    await this.resumeNotificationProducer.notifyReviewing(notificationPayload);
+                    break;
+            }
+        }
+
+        return this.mapToResponseDto(savedResume);
     }
 
 

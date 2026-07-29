@@ -7,6 +7,7 @@ import { UsersModule } from '../users/users.module';
 import { JobModule } from '../job/job.module';
 import { UploadModule } from '../upload/upload.module';
 import { PaginationModule } from 'src/common/pagination/pagination.module';
+import { ResumeNotificationModule } from '../resume-notification/resume-notification.module';
 
 @Module({
   imports: [
@@ -15,9 +16,10 @@ import { PaginationModule } from 'src/common/pagination/pagination.module';
     forwardRef(() => JobModule),
     UploadModule,
     PaginationModule,
+    ResumeNotificationModule,
   ],
   controllers: [ResumeController],
   providers: [ResumeService],
   exports: [ResumeService],
 })
-export class ResumeModule {}
+export class ResumeModule { }
